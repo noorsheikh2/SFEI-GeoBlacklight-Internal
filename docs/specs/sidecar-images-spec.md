@@ -38,7 +38,8 @@ Key requirements:
   Images reside in the SFEI Google Drive folder:  
   `https://drive.google.com/drive/folders/17D5TLgcpPV83MimUhCafa9roncOSgHsa`
 * **Cron Sync to Server (`public/thumbnails/`):**
-  * The automated ingestion job (`sheet_to_solr.py` / cron) will be enhanced to sync referenced image files from Google Drive into the server's `public/thumbnails/` directory.
+  * The automated ingestion job (`sheet_to_solr.py` / cron) will be enhanced with an image sync section that downloads referenced image files from Google Drive into the server's `public/thumbnails/` directory.
+  * **File Caching & Immutability Rule:** Files that already exist in `public/thumbnails/` will **not** be re-copied/downloaded. If staff need to change or update an image, they must upload it with a new filename (e.g. `my_image_v2.png`) and update the filename in the Google Sheet. This new name is also required because `geoblacklight_sidecar_images` caches images permanently via Active Storage state tracking and will not re-fetch or serve a new file if it retains the same name.
   * **Images are NOT tracked in Git:** Image binaries remain excluded from git history (`.gitignore`), keeping the repository lightweight. A `.keep` file maintains the directory structure.
   * **Static asset serving:** Rails / reverse proxy serves the synced raw images directly at `http://<host>/thumbnails/<filename>` with zero proxy overhead.
 * **Active Storage Architecture:**
@@ -58,7 +59,7 @@ flowchart TD
     end
 
     subgraph Image Assets
-        IMG["Google Drive / Images Folder"] -->|Synced to server disk via cron| DIR[public/thumbnails/]
+        IMG["Google Drive / Images Folder"] --> |sheet_to_solr.py| DIR[public/thumbnails/]
         DIR -->|Served as static asset| URL["http://host/thumbnails/sfei_image_name_s"]
     end
 
@@ -113,14 +114,8 @@ flowchart TD
 
 ### Phase 6: Operational Documentation
 - [ ] Add `docs/IMAGE_MANAGEMENT.md` with instructions on:
-  - How to add new images to `public/thumbnails/`.
-  - How the Solr cron job should format image metadata.
-  - How to run or schedule sidecar harvesting.
+  - How staff add new images to the Google Drive folder.
+  - Image update policy: always use a new filename when changing/updating an image (existing files are not re-downloaded).
+  - How the Google Sheet metadata corresponds to Solr (`sfei_image_name_s`).
+  - How the sync and sidecar harvesting runs via cron.
   - Troubleshooting tips for missing images.
-
----
-
-## 5. Review & Open Questions for User
-1. **Cron Field Name:** What exact field name is the cron job currently using to write the image filename into Solr? (If not yet chosen, we recommend `thumbnail_path_ss`).
-2. **Image Format & Naming:** Are the images standard web formats (`.jpg`, `.png`, `.webp`) matching the identifier or a specific pattern?
-3. **Approval to Proceed:** Does the above approach (committing images to `public/thumbnails/` and using `thumbnail_path_ss`) meet your requirements?
