@@ -33,18 +33,18 @@ Key requirements:
   `schema.xml` defines `<dynamicField name="*_s" type="string" stored="true" indexed="true"/>`.  
   Because `sfei_image_name_s` ends with `_s`, **no schema changes are needed in Solr**. It is already indexed and stored properly.
 
-### 2.2 Image Storage & Deployment Analysis (Shared Drive vs. Git Repository)
-* **The Shared Drive Issue:**  
-  * The production application runs inside a Docker container (`Dockerfile`) with an unprivileged runtime user (`rails`, UID 1000).
-  * Containers have isolated filesystems. External shared drives (e.g. network SMB shares or NAS) are **not accessible** to the running application unless explicitly mounted as Docker volumes on the production host and passed into the container at runtime.
-  * In staging, CI (`.github/workflows/ci.yml`), or other developer machines, network drive paths will either not exist or lack authentication credentials, breaking tests and local preview.
-* **The Git Repository Solution:**  
-  * **Location:** `public/thumbnails/` (or `public/images/thumbnails/`).
-  * **Why it works best:**
-    1. **Self-contained deployment:** The Dockerfile executes `COPY . .`, automatically bundling `public/` into the container image.
-    2. **Direct static serving:** Files in `public/thumbnails/<filename>` can be served directly by Rails or reverse proxies (Nginx, Traefik, Kamal proxy) with low overhead.
-    3. **Reliability:** Every environment (local, CI test runner, production) has immediate access to the exact assets without network mount dependencies.
-  * **Size considerations:** For thumbnail and preview imagery (typically 50–200 KB per image), thousands of images take only 50–150 MB, which is well within standard Git repository capabilities. (If image volumes grow to multi-gigabytes in the future, a cloud object store like S3/GCS or a mounted persistent volume can be introduced).
+### 2.2 Image Storage & Ingestion Strategy (Google Drive Sync to Server Disk)
+* **Image Source:**  
+  Images reside in the SFEI Google Drive folder:  
+  `https://drive.google.com/drive/folders/17D5TLgcpPV83MimUhCafa9roncOSgHsa`
+* **Cron Sync to Server (`public/thumbnails/`):**
+  * The automated ingestion job (`sheet_to_solr.py` / cron) will be enhanced to sync referenced image files from Google Drive into the server's `public/thumbnails/` directory.
+  * **Images are NOT tracked in Git:** Image binaries remain excluded from git history (`.gitignore`), keeping the repository lightweight. A `.keep` file maintains the directory structure.
+  * **Static asset serving:** Rails / reverse proxy serves the synced raw images directly at `http://<host>/thumbnails/<filename>` with zero proxy overhead.
+* **Active Storage Architecture:**
+  * **Storage Service:** Local Disk (`:local` service in `config/storage.yml`), storing processed attachments under `storage/`.
+  * **Delivery Route:** Rails storage proxy mode (`config.active_storage.resolve_model_to_route = :rails_storage_proxy`) to stream images with long-term HTTP cache headers, avoiding 302 redirect roundtrips on search results.
+  * **Container Persistence:** `/rails/storage` and `/rails/public/thumbnails` will be persisted via Docker volumes in production so synced files and sidecar caches survive container restarts.
 
 ---
 
@@ -58,7 +58,7 @@ flowchart TD
     end
 
     subgraph Image Assets
-        IMG["Google Drive / Images Folder"] -->|Placed in Git repository| DIR[public/thumbnails/]
+        IMG["Google Drive / Images Folder"] -->|Synced to server disk via cron| DIR[public/thumbnails/]
         DIR -->|Served as static asset| URL["http://host/thumbnails/sfei_image_name_s"]
     end
 
@@ -94,13 +94,12 @@ flowchart TD
 - [ ] Ensure Active Storage is configured in `config/storage.yml` (local disk storage for development and production).
 
 ### Phase 3: Image Directory & Serving Configuration
-- [ ] Create repository directory `public/thumbnails/`.
-- [ ] Add a `.keep` or sample thumbnail file to establish the folder.
+- [ ] Create repository directory `public/thumbnails/` with a `.keep` file, adding `public/thumbnails/*` (except `.keep`) to `.gitignore`.
 - [ ] Update `config/settings.yml` with:
   ```yaml
-  GBLSI_THUMBNAIL_FIELD: 'thumbnail_path_ss'
+  GBLSI_THUMBNAIL_FIELD: 'sfei_image_name_s'
   ```
-- [ ] Configure filename-to-URL normalization so that if Solr contains just `example.jpg`, the sidecar harvester knows to resolve it at `/thumbnails/example.jpg`.
+- [ ] Configure filename-to-URL normalization so that when Solr contains `BHM2020v13.png`, the sidecar harvester resolves it at `/thumbnails/BHM2020v13.png`.
 
 ### Phase 4: Harvesting & Ingestion Integration
 - [ ] Test the rake task `rake gblsci:images:harvest_all` on sample documents.
