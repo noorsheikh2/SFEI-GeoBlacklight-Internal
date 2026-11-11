@@ -19,19 +19,19 @@ Key requirements:
 
 ## 2. Codebase & Environment Analysis
 
-### 2.1 Solr Schema & Field Availability
-* **Current Status in `solr/conf/schema.xml`:**  
-  There is currently no explicit, dedicated field named `thumbnail` or `image` in `schema.xml`.
-* **Dynamic Fields Support:**  
-  `schema.xml` defines standard Solr dynamic fields:
-  * `*_s` — String (stored and indexed)
-  * `*_ss` — String (stored, not indexed)
-  * `*_sm` — Multi-valued String (stored and indexed)
-  * `*_url` — Stored URL
-* **Conclusion & Recommendation:**  
-  We do **not** necessarily need to modify `schema.xml` to add a static field, because any field ending in `_ss` (e.g. `thumbnail_path_ss` or `image_filename_s`) is already valid and supported dynamically by Solr.  
-  * Recommended field name for Solr: `thumbnail_path_ss` (or `image_filename_s`).
-  * If the cron ingestion pipeline already outputs a specific field name, we will configure that field name in `config/settings.yml` under `GBLSI_THUMBNAIL_FIELD`.
+### 2.1 Solr Schema & Ingestion Discovery
+* **Ingestion Script Found:** `sheet_to_solr.py`
+  * Pulls from Google Sheet: `1Kv6W_hUBSz8dmYAqxvS_J_Y5UWXCgTYoaZSkK5WgYSs`
+  * Generates Solr documents directly via Solr `/update` JSON API.
+* **Exact Image Field Name in Solr:**  
+  **`sfei_image_name_s`**
+  * Example values found in live data:
+    * `"BHM2020v13.png"`
+    * `"lower_coyote_creek.png"`
+    * `"ACCESS-CM2_historical_ssp245_climate_projections.png"`
+* **Solr Dynamic Schema Support:**  
+  `schema.xml` defines `<dynamicField name="*_s" type="string" stored="true" indexed="true"/>`.  
+  Because `sfei_image_name_s` ends with `_s`, **no schema changes are needed in Solr**. It is already indexed and stored properly.
 
 ### 2.2 Image Storage & Deployment Analysis (Shared Drive vs. Git Repository)
 * **The Shared Drive Issue:**  
@@ -53,13 +53,13 @@ Key requirements:
 ```mermaid
 flowchart TD
     subgraph Data Ingestion
-        A[External Data / Cron Job] -->|Indexes metadata + image filename| B[(Solr Index)]
-        B -->|Field: thumbnail_path_ss| C[Solr Document]
+        A["Google Sheet (Metadata Upload Doc)"] -->|sheet_to_solr.py| B[(Solr Index)]
+        B -->|Field: sfei_image_name_s| C[Solr Document]
     end
 
     subgraph Image Assets
-        IMG[Image Files] -->|Committed to Git repo| DIR[public/thumbnails/]
-        DIR -->|Served as static asset| URL[http://host/thumbnails/filename.jpg]
+        IMG["Google Drive / Images Folder"] -->|Placed in Git repository| DIR[public/thumbnails/]
+        DIR -->|Served as static asset| URL["http://host/thumbnails/sfei_image_name_s"]
     end
 
     subgraph Rails Application
@@ -72,9 +72,9 @@ flowchart TD
 ```
 
 ### 3.1 Field Mapping Flow
-1. The cron job indexes each record into Solr with its image filename (or relative path) in `thumbnail_path_ss` (e.g., `"bay_wetlands_2024.jpg"` or `"/thumbnails/bay_wetlands_2024.jpg"`).
-2. The application configuration points `GBLSI_THUMBNAIL_FIELD` to `thumbnail_path_ss`.
-3. If the field contains a filename rather than a full URL, an application helper / URL resolver prepends the base thumbnail URL (e.g. `http://localhost:3000/thumbnails/` or the request host).
+1. `sheet_to_solr.py` indexes each record into Solr with its image filename in **`sfei_image_name_s`** (e.g. `"BHM2020v13.png"`).
+2. The application configuration points `GBLSI_THUMBNAIL_FIELD` to `sfei_image_name_s`.
+3. Because the field contains a filename rather than a full URL, we configure the image harvester / URL helper to resolve filenames against `/thumbnails/` (e.g., `/thumbnails/#{document['sfei_image_name_s']}`).
 4. `geoblacklight_sidecar_images` attaches the image to the `SolrDocumentSidecar` Active Record model.
 5. In search results and show views, GeoBlacklight displays the sidecar image.
 
