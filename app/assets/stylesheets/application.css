@@ -14,3 +14,5 @@
  *= require_self
  *= require blacklight
  */
+
+@import 'geoblacklight_sidecar_images/gblsci';

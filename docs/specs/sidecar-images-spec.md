@@ -88,23 +88,28 @@ flowchart TD
 - [x] Create `docs/specs/` directory and author this specification.
 
 ### Phase 2: Plugin & Storage Setup
-- [ ] Add `gem "geoblacklight_sidecar_images"` to `Gemfile`.
-- [ ] Run `bundle install`.
-- [ ] Run `bin/rails generate geoblacklight_sidecar_images:install`.
-- [ ] Review and run database migrations (`bin/rails db:migrate`).
-- [ ] Ensure Active Storage is configured in `config/storage.yml` (local disk storage for development and production).
+- [x] Add `gem "geoblacklight_sidecar_images"` to `Gemfile`.
+- [x] Run `bundle install`.
+- [x] Run `bin/rails generate geoblacklight_sidecar_images:install --skip-views`.
+  * *Generator Flag Note:* `--skip-views` is required because this application runs GeoBlacklight 5.4.0 with ViewComponents (`Geoblacklight::SearchResultComponent`) rather than legacy GBL 4 ERB split partials. The app uses Sprockets (`sprockets-rails`), so `--skip-assets` is omitted to retain the plugin's CSS/JS assets.
+- [x] Review and run database migrations (`bin/rails db:migrate`).
+- [x] Ensure Active Storage is configured in `config/storage.yml` (local disk storage for development and production) with proxy streaming mode in `config/application.rb`.
 
 ### Phase 3: Image Directory & Serving Configuration
-- [ ] Create repository directory `public/thumbnails/` with a `.keep` file, adding `public/thumbnails/*` (except `.keep`) to `.gitignore`.
-- [ ] Update `config/settings.yml` with:
+- [x] Create repository directory `public/thumbnails/` with a `.keep` file, adding `public/thumbnails/*` (except `.keep`) to `.gitignore`.
+- [x] Update `config/settings.yml` with:
   ```yaml
   GBLSI_THUMBNAIL_FIELD: 'sfei_image_name_s'
   ```
-- [ ] Configure filename-to-URL normalization so that when Solr contains `BHM2020v13.png`, the sidecar harvester resolves it at `/thumbnails/BHM2020v13.png`.
+- [x] Configure `config/initializers/geoblacklight_sidecar_images.rb` to:
+  * Check `public/thumbnails/<filename>` locally for instant, offline attachment.
+  * Bridge `Geoblacklight::SolrDocument.find` to `::SolrDocument.find` for the pre-alpha gem job.
+- [x] Implement custom `SearchResultComponent` (`app/components/search_result_component.rb` & `.html.erb`) subclassing `Geoblacklight::SearchResultComponent` to render `sidecar_thumbnail_tag` beside search results.
+- [x] Update `CatalogController` with `config.index.document_component = SearchResultComponent` so Blacklight renders our custom component template instead of the gem's default.
 
 ### Phase 4: Harvesting & Ingestion Integration
-- [ ] Test the rake task `rake gblsci:images:harvest_all` on sample documents.
-- [ ] Provide a helper task or cron hook to trigger image harvesting automatically after Solr document indexing.
+- [x] Test the rake task `rake gblsci:images:harvest_all` on sample documents (11 succeeded, 0 failed, 3 placeheld).
+- [x] Create `sheet_to_solr_with_images.py` supporting automated image caching and Google Drive sync.
 
 ### Phase 5: Testing & Verification
 - [ ] Add unit/model test for `SolrDocumentSidecar` and thumbnail URL resolution.

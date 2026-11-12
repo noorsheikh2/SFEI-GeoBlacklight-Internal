@@ -1,0 +1,58 @@
+<%# Custom SearchResultComponent supporting geoblacklight_sidecar_images %>
+<%= content_tag @component,
+  id: @id,
+  data: {
+    'document-id': @document.id.to_s.parameterize,
+    'document-counter': @counter,
+    'search-results-target': 'result',
+    'action': 'mouseenter->search-results#previewResultOnMap mouseleave->search-results#clearPreview'
+  },
+  itemscope: true,
+  itemtype: @document.itemtype,
+  class: classes.flatten.join(' ') do %>
+
+  <div class="d-flex flex-row align-items-start my-2">
+    <% if @document.respond_to?(:sidecar) && @document.sidecar&.image&.attached? %>
+      <div class="document-thumbnail me-3 flex-shrink-0" style="width: 120px;">
+        <%= helpers.sidecar_thumbnail_tag(@document, size: [120, 120], class: "img-fluid img-thumbnail rounded shadow-sm", style: "width: 120px; height: 120px; object-fit: cover;") %>
+      </div>
+    <% else %>
+      <div class="document-thumbnail me-3 flex-shrink-0 d-flex align-items-center justify-content-center bg-light border rounded text-secondary shadow-sm" style="width: 120px; height: 120px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="text-secondary opacity-50" viewBox="0 0 16 16">
+          <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
+        </svg>
+      </div>
+    <% end %>
+
+    <div class="documentHeader index-split d-flex flex-grow-1 flex-column" data-layer-id="<%= @document.id %>" data-geom="<%= @document.geometry.geojson %>">
+      <div class="d-flex flex-row justify-content-between align-items-start">
+        <h3 class="index_title flex-grow-1">
+          <span class="document-counter">
+            <%= t('blacklight.search.documents.counter', :counter => @counter) if @counter %>
+          </span>
+          <%= helpers.link_to_document(@document, counter: @counter, itemprop: "name") %>
+        </h3>
+
+        <span class='status-icons'>
+          <%= render Geoblacklight::HeaderIconsComponent.new(document: @document) %>
+          <button
+              class="btn dropdown-toggle collapsed"
+              data-bs-toggle="collapse"
+              data-bs-target="#doc-<%= @document.id %>-fields-collapse"
+              aria-label="<%= t('geoblacklight.metadata.toggle_summary') %>"
+              aria-expanded="false"
+              aria-controls="doc-<%= @document.id %>-fields-collapse">
+            </button>
+        </span>
+      </div>
+
+      <div class='more-info-area border-bottom mt-2 pb-2'>
+        <div id="doc-<%= @document.id %>-fields-collapse" class='collapse'>
+          <small itemprop="description">
+            <%= index_fields_display %>
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
