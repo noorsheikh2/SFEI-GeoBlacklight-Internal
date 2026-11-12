@@ -56,6 +56,7 @@ group :test do
   gem "selenium-webdriver"
 end
 gem "geoblacklight"
+gem "geoblacklight_sidecar_images"
 gem "bootstrap", "~> 5.3"
 gem "sassc-rails", "~> 2.1"
 gem "devise"
