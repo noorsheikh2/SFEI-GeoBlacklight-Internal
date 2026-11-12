@@ -2,7 +2,7 @@
 **Issue Reference:** [Issue #10: Install and Configure Geoblacklight Sidecar Images Plugin](https://github.com/noorsheikh2/SFEI-GeoBlacklight-Internal/issues/10)  
 **Branch:** `10-geoblacklight-sidecar-images`  
 **Date:** November 2026  
-**Status:** Draft / In Review  
+**Status:** In Review  
 
 ---
 
@@ -17,7 +17,40 @@ Key requirements:
 
 ---
 
-## 2. Codebase & Environment Analysis
+## 2. Key Architecture & Design Assumptions
+
+* **No GeoServer Generation Assumed:**  
+  We assume SFEI does **not** want to use an external GeoServer WMS (`GetMap`) service to dynamically generate thumbnail images from raw vector/raster GIS layers. SFEI scientists and cartographers produce high-quality, publication-ready graphics, figures, and maps curated in Google Drive (`sfei_image_name_s`), which look significantly better than automated wireframe snapshots. GeoServer settings (`INSTITUTION_GEOSERVER_URL`, etc.) in `config/settings.yml` remain blank.
+* **Follow-on Capability:** If SFEI ever decides in the future to auto-generate thumbnails from a live GeoServer instance, the application is already compatible: staff can populate `INSTITUTION_GEOSERVER_URL` and `INSTITUTION_LOCAL_NAME` in `config/settings.yml`, and the plugin's harvester will fall back to querying GeoServer WMS `GetMap` for any records without an explicit `sfei_image_name_s` value.
+* **Search Result Thumbnail Sizing:**  
+  We assumed a **120px × 120px** square thumbnail on search result cards (`object-fit: cover`, rounded with light border/shadow). For records lacking an attached image, a matching 120×120 neutral SVG map pin placeholder is displayed to preserve list alignment.
+* **Detail (Show) Page Placement & Lightbox:**  
+  We assumed:
+  1. **Location:** In the right sidebar, positioned **below the tools/actions menu** so the image aligns horizontally with the main page title and description.
+  2. **Dimensions:** Responsive sidebar width with `max-height: 250px` (`object-fit: contain`) to accommodate varying landscape/portrait aspect ratios without cropping.
+  3. **Lightbox Modal:** Clicking the sidebar thumbnail opens a native Bootstrap 5 modal lightbox displaying the full-resolution graphic with a dark backdrop, allowing users to examine fine text, maps, and legends.
+
+---
+
+## 3. Open Questions for Team Alignment
+
+Prior to merging and production rollout, review the following questions with the team:
+
+1. **Search Results Thumbnail Dimensions:**
+   * *Current Assumption:* 120px × 120px.
+   * *Question:* Does the team prefer this 120px square size, or would a larger format (e.g. 150px) or smaller format (e.g. 100px) be preferred?
+2. **Detail Page Placement:**
+   * *Current State:* Both locations are currently rendered for direct side-by-side comparison:
+     1. In the right sidebar below the tools menu.
+     2. In the metadata attribute table directly under **Description** with the label **"Preview Image"**.
+   * *Question for team:* Which location does the team prefer for the final version? (Sidebar only, metadata table only, or both?)
+3. **Detail Page Lightbox vs. Direct Link:**
+   * *Current Assumption:* Clicking the thumbnail opens a native Bootstrap modal lightbox displaying the full-resolution original image.
+   * *Question:* Does the team prefer this lightbox modal, or should clicking open the image in a new browser tab?
+
+---
+
+## 4. Codebase & Environment Analysis
 
 ### 2.1 Solr Schema & Ingestion Discovery
 * **Ingestion Script Found:** `sheet_to_solr.py`
@@ -49,7 +82,7 @@ Key requirements:
 
 ---
 
-## 3. Architecture & Data Flow
+## 5. Architecture & Data Flow
 
 ```mermaid
 flowchart TD
@@ -67,12 +100,12 @@ flowchart TD
         C --> D[geoblacklight_sidecar_images]
         URL --> D
         D -->|Active Storage attachment| DB[(SQLite / Sidecar Table)]
-        DB --> E[SearchResultComponent View]
-        E -->|Render image thumbnail| UI[User Browser Search Results]
+        DB --> E[SearchResultComponent & DocumentSidebarComponent]
+        E -->|Render thumbnails & lightbox| UI[User Browser: Search & Detail Views]
     end
 ```
 
-### 3.1 Field Mapping Flow
+### 5.1 Field Mapping Flow
 1. `sheet_to_solr.py` indexes each record into Solr with its image filename in **`sfei_image_name_s`** (e.g. `"BHM2020v13.png"`).
 2. The application configuration points `GBLSI_THUMBNAIL_FIELD` to `sfei_image_name_s`.
 3. Because the field contains a filename rather than a full URL, we configure the image harvester / URL helper to resolve filenames against `/thumbnails/` (e.g., `/thumbnails/#{document['sfei_image_name_s']}`).
@@ -81,7 +114,7 @@ flowchart TD
 
 ---
 
-## 4. Step-by-Step Implementation Plan
+## 6. Step-by-Step Implementation Plan
 
 ### Phase 1: Environment & Branch Setup (Completed)
 - [x] Create feature branch `10-geoblacklight-sidecar-images`.
@@ -106,14 +139,17 @@ flowchart TD
   * Bridge `Geoblacklight::SolrDocument.find` to `::SolrDocument.find` for the pre-alpha gem job.
 - [x] Implement custom `SearchResultComponent` (`app/components/search_result_component.rb` & `.html.erb`) subclassing `Geoblacklight::SearchResultComponent` to render `sidecar_thumbnail_tag` beside search results.
 - [x] Update `CatalogController` with `config.index.document_component = SearchResultComponent` so Blacklight renders our custom component template instead of the gem's default.
+- [x] Implement custom `DocumentSidebarComponent` (`app/components/document_sidebar_component.rb` & `.html.erb`) subclassing `Geoblacklight::Document::SidebarComponent` to display the thumbnail at the top of the sidebar on show pages.
+- [x] Update `CatalogController` with `config.show.sidebar_component = DocumentSidebarComponent`.
 
 ### Phase 4: Harvesting & Ingestion Integration
 - [x] Test the rake task `rake gblsci:images:harvest_all` on sample documents (11 succeeded, 0 failed, 3 placeheld).
 - [x] Create `sheet_to_solr_with_images.py` supporting automated image caching and Google Drive sync.
 
 ### Phase 5: Testing & Verification
+- [x] Verify image rendering on search result cards (thumbnails on left with fallback placeholder for unattached records).
+- [x] Verify image rendering on document show pages (top of right sidebar).
 - [ ] Add unit/model test for `SolrDocumentSidecar` and thumbnail URL resolution.
-- [ ] Verify image rendering on search result cards and document show pages.
 - [ ] Verify Docker build (`docker build .`) packages the `public/thumbnails/` directory.
 - [ ] Run CI checks (`bin/brakeman`, `bin/rubocop`, `bin/rails test`).
 
