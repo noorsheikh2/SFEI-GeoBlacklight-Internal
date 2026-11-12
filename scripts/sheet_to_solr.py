@@ -47,10 +47,11 @@ GDRIVE_FOLDER_URL = f"https://drive.google.com/drive/folders/{GDRIVE_FOLDER_ID}"
 
 # Default output directory for thumbnail images
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_THUMBNAILS_DIR = os.path.join(SCRIPT_DIR, "SFEI-GeoBlacklight-Internal", "public", "thumbnails")
+# If script is in SFEI-GeoBlacklight-Internal/scripts/, look in ../public/thumbnails
+DEFAULT_THUMBNAILS_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "public", "thumbnails"))
 if not os.path.isdir(DEFAULT_THUMBNAILS_DIR):
-    # If run from inside SFEI-GeoBlacklight-Internal directory
-    alt_dir = os.path.join(SCRIPT_DIR, "public", "thumbnails")
+    # Fallback to local public/thumbnails if run from repo root
+    alt_dir = os.path.abspath(os.path.join(SCRIPT_DIR, "public", "thumbnails"))
     if os.path.isdir(alt_dir):
         DEFAULT_THUMBNAILS_DIR = alt_dir
 
@@ -386,11 +387,18 @@ def sync_thumbnails(docs, output_dir=DEFAULT_THUMBNAILS_DIR, source_dir=None, dr
             log(f"Attempting to sync missing images from Google Drive folder ({GDRIVE_FOLDER_ID})...")
             # gdown download_folder will check output directory and skip files that already exist
             gdown.download_folder(
-                id=GDRIVE_FOLDER_ID,
+                url=GDRIVE_FOLDER_URL,
                 output=output_dir,
-                quiet=True,
-                remaining_ok=True
+                quiet=False
             )
+            # If gdown downloaded files into a named subfolder inside output_dir, flatten them into output_dir
+            for root, dirs, files in os.walk(output_dir):
+                if root != output_dir:
+                    for f in files:
+                        src = os.path.join(root, f)
+                        dest = os.path.join(output_dir, f)
+                        if not os.path.exists(dest):
+                            shutil.move(src, dest)
             # Re-check which files are still missing
             still_missing = [img for img in missing if not os.path.exists(os.path.join(output_dir, img))]
             if still_missing:
