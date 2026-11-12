@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Sync the SFEI "Metadata Upload Doc" Google Sheet into GeoBlacklight's Solr core.
+Sync the SFEI "Metadata Upload Doc" Google Sheet into GeoBlacklight's Solr core,
+and automatically sync referenced thumbnail images from Google Drive into public/thumbnails/.
 
 The sheet layout this script expects:
   Row 1  - human-readable column labels ("Title", "Bounding Box (West Longitude)", ...)
@@ -9,20 +10,26 @@ The sheet layout this script expects:
   Row 4+ - one record per row
 Column A ("Label") is ignored.
 
-Usage:
-  python3 sheet_to_solr.py --dry-run     Download and convert, print the records, change nothing
-  python3 sheet_to_solr.py               Download, convert, and update Solr
-  python3 sheet_to_solr.py --csv-file sheet.csv --dry-run
-                                         Use a local CSV file instead of the live sheet
+Image Sync Behavior:
+  - Scans converted records for 'sfei_image_name_s'.
+  - Checks if the file already exists in public/thumbnails/.
+  - Existing files are SKIPPED (not re-downloaded).
+  - New/missing files are downloaded from Google Drive using gdown (or an optional Service Account).
 
-Only the Python standard library is used, so nothing needs to be installed.
+Usage:
+  python3 sheet_to_solr_with_images.py --dry-run
+  python3 sheet_to_solr_with_images.py
+  python3 sheet_to_solr_with_images.py --skip-images
+  python3 sheet_to_solr_with_images.py --images-dir /path/to/local/source
 """
 
 import argparse
 import csv
 import io
 import json
+import os
 import re
+import shutil
 import sys
 import urllib.error
 import urllib.parse
@@ -35,6 +42,17 @@ from datetime import datetime, timezone
 SHEET_ID = "1Kv6W_hUBSz8dmYAqxvS_J_Y5UWXCgTYoaZSkK5WgYSs"
 SHEET_GID = "0"  # the tab to export; "0" is the first tab
 SOLR_URL = "http://localhost:8983/solr/blacklight-core"
+GDRIVE_FOLDER_ID = "17D5TLgcpPV83MimUhCafa9roncOSgHsa"
+GDRIVE_FOLDER_URL = f"https://drive.google.com/drive/folders/{GDRIVE_FOLDER_ID}"
+
+# Default output directory for thumbnail images
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_THUMBNAILS_DIR = os.path.join(SCRIPT_DIR, "SFEI-GeoBlacklight-Internal", "public", "thumbnails")
+if not os.path.isdir(DEFAULT_THUMBNAILS_DIR):
+    # If run from inside SFEI-GeoBlacklight-Internal directory
+    alt_dir = os.path.join(SCRIPT_DIR, "public", "thumbnails")
+    if os.path.isdir(alt_dir):
+        DEFAULT_THUMBNAILS_DIR = alt_dir
 
 ID_PREFIX = "sfei-"           # generated IDs look like sfei-baylands-habitat-map-2020-v1-3-bhm2020
 INCLUDE_CUSTOM_FIELDS = True  # index SFEI columns that have no field name (Citation, Data Version, ...)
@@ -130,7 +148,7 @@ def parse_envelope(text):
 
 
 # --------------------------------------------------------------------------
-# Download
+# Download & Ingest
 # --------------------------------------------------------------------------
 def download_sheet_csv():
     url = (f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export"
@@ -150,9 +168,6 @@ def download_sheet_csv():
     return text
 
 
-# --------------------------------------------------------------------------
-# Convert
-# --------------------------------------------------------------------------
 def plan_columns(labels, fields):
     """Work out which Solr field each column goes into."""
     plan = {}
@@ -295,7 +310,7 @@ def convert_sheet(text):
     warnings, docs, seen_ids = [], [], {}
 
     for offset, row in enumerate(rows[FIRST_DATA_ROW:]):
-        row_number = FIRST_DATA_ROW + offset + 1  # the row number people see in the sheet
+        row_number = FIRST_DATA_ROW + offset + 1
         doc = convert_row(row, row_number, plan, bbox_columns, warnings)
         if doc is None:
             continue
@@ -308,6 +323,86 @@ def convert_sheet(text):
         docs.append(doc)
 
     return docs, warnings
+
+
+# --------------------------------------------------------------------------
+# Image Sync
+# --------------------------------------------------------------------------
+def sync_thumbnails(docs, output_dir=DEFAULT_THUMBNAILS_DIR, source_dir=None, dry_run=False):
+    """
+    Ensures images referenced by sfei_image_name_s in docs are present in output_dir.
+    Files that already exist are NEVER re-downloaded (immutability rule).
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Collect unique non-empty image filenames
+    referenced_images = set()
+    for doc in docs:
+        img_name = doc.get("sfei_image_name_s")
+        if img_name:
+            # Handle if full path or just basename is given
+            referenced_images.add(os.path.basename(img_name.strip()))
+
+    if not referenced_images:
+        log("No image filenames referenced in records.")
+        return
+
+    log(f"Referenced images in records: {len(referenced_images)}")
+    missing = []
+    already_present = []
+
+    for img in sorted(referenced_images):
+        dest_path = os.path.join(output_dir, img)
+        if os.path.exists(dest_path):
+            already_present.append(img)
+        else:
+            missing.append(img)
+
+    log(f"Image status: {len(already_present)} already exist (skipping), {len(missing)} missing.")
+
+    if not missing:
+        log("All referenced images are already present on disk.")
+        return
+
+    if dry_run:
+        log(f"Dry run: {len(missing)} images would need to be synced: {missing}")
+        return
+
+    # Strategy 1: Copy from a local directory (e.g. mounted drive or local backup)
+    if source_dir and os.path.isdir(source_dir):
+        log(f"Attempting to copy missing images from source directory: {source_dir}")
+        for img in missing[:]:
+            src_file = os.path.join(source_dir, img)
+            if os.path.isfile(src_file):
+                dest_file = os.path.join(output_dir, img)
+                shutil.copy2(src_file, dest_file)
+                log(f"  Copied {img} -> {dest_file}")
+                missing.remove(img)
+
+    # Strategy 2: Download missing images from Google Drive via gdown if available
+    if missing:
+        try:
+            import gdown
+            log(f"Attempting to sync missing images from Google Drive folder ({GDRIVE_FOLDER_ID})...")
+            # gdown download_folder will check output directory and skip files that already exist
+            gdown.download_folder(
+                id=GDRIVE_FOLDER_ID,
+                output=output_dir,
+                quiet=True,
+                remaining_ok=True
+            )
+            # Re-check which files are still missing
+            still_missing = [img for img in missing if not os.path.exists(os.path.join(output_dir, img))]
+            if still_missing:
+                log(f"WARNING: {len(still_missing)} images were not found in Google Drive: {still_missing}")
+            else:
+                log("Successfully synced missing images from Google Drive!")
+        except ImportError:
+            log("NOTE: 'gdown' package is not installed. To enable automated Google Drive sync, run:")
+            log("  pip install gdown")
+            log(f"Currently missing images: {missing}")
+        except Exception as e:
+            log(f"WARNING: Could not complete Google Drive sync: {e}")
 
 
 # --------------------------------------------------------------------------
@@ -358,8 +453,6 @@ def update_solr(docs):
             log(f"  FAILED {doc_id}: {message}")
         return 1
 
-    # Remove records that are no longer in the sheet. IDs of rows that failed this
-    # time are kept, so a previously good version stays on the site.
     keep = " OR ".join(f'"{doc["id"]}"' for doc in docs)
     solr_request("update", {"delete": {"query": f"*:* -id:({keep})"}})
     solr_request("update", {"commit": {}})
@@ -376,10 +469,14 @@ def update_solr(docs):
 # Main
 # --------------------------------------------------------------------------
 def main():
-    parser = argparse.ArgumentParser(description="Sync the SFEI Google Sheet into Solr.")
+    parser = argparse.ArgumentParser(description="Sync the SFEI Google Sheet and images into Solr.")
     parser.add_argument("--dry-run", action="store_true",
-                        help="convert and print the records without changing Solr")
+                        help="convert and print the records without changing Solr or images")
     parser.add_argument("--csv-file", help="read this local CSV instead of downloading the sheet")
+    parser.add_argument("--skip-images", action="store_true", help="skip thumbnail image synchronization")
+    parser.add_argument("--images-dir", help="local directory with images to copy from (e.g. mounted drive)")
+    parser.add_argument("--thumbnails-dir", default=DEFAULT_THUMBNAILS_DIR,
+                        help=f"destination directory for thumbnails (default: {DEFAULT_THUMBNAILS_DIR})")
     args = parser.parse_args()
 
     if args.csv_file:
@@ -398,6 +495,15 @@ def main():
     if not docs:
         log("ERROR: no records found in the sheet, so Solr was not changed.")
         return 1
+
+    # Sync thumbnail images if not skipped
+    if not args.skip_images:
+        sync_thumbnails(
+            docs=docs,
+            output_dir=args.thumbnails_dir,
+            source_dir=args.images_dir,
+            dry_run=args.dry_run
+        )
 
     if args.dry_run:
         print(json.dumps(docs, indent=2, ensure_ascii=False))
