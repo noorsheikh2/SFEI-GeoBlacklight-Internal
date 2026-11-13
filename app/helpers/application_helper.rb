@@ -15,7 +15,7 @@ module ApplicationHelper
 
     content_tag(:div, class: "my-2") do
       thumbnail = link_to("#", data: { bs_toggle: "modal", bs_target: "##{modal_id}" }, title: "Click to enlarge image") do
-        sidecar_thumbnail_tag(doc, size: [400, 400], class: "img-fluid img-thumbnail rounded shadow-sm", style: "max-height: 250px; width: auto; object-fit: contain; cursor: pointer;", alt: doc.title)
+        sidecar_thumbnail_tag(doc, size: [ 400, 400 ], class: "img-fluid img-thumbnail rounded shadow-sm", style: "max-height: 250px; width: auto; object-fit: contain; cursor: pointer;", alt: doc.title)
       end
 
       caption = content_tag(:div, class: "small text-muted mt-1", style: "cursor: pointer;", data: { bs_toggle: "modal", bs_target: "##{modal_id}" }) do

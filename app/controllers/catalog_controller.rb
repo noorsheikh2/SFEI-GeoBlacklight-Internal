@@ -29,7 +29,7 @@ class CatalogController < ApplicationController
 
     # GeoBlacklight Defaults
     # * Adds the "map" split view for catalog#index
-    config.view.split(partials: ["index"])
+    config.view.split(partials: [ "index" ])
     config.view.delete_field("list")
 
     # solr field configuration for search results/index views
@@ -172,7 +172,7 @@ class CatalogController < ApplicationController
     config.add_show_field(
       Settings.FIELDS.REFERENCES,
       label: "More details at",
-      accessor: [:external_url],
+      accessor: [ :external_url ],
       if: proc { |_, _, doc| doc.external_url },
       helper_method: :render_references_url
     )
