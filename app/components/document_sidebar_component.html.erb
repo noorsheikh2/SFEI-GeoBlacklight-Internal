@@ -3,13 +3,14 @@
   <%= render_show_tools %>
 
   <% if document.respond_to?(:sidecar) && document.sidecar&.image&.attached? %>
+    <% modal_id = "sidebar-image-lightbox-#{document.id.to_s.parameterize}" %>
     <div class="card mb-3 shadow-sm border-0 document-sidebar-thumbnail">
       <div class="card-body p-2 text-center bg-light rounded">
-        <a href="#" data-bs-toggle="modal" data-bs-target="#image-lightbox-modal" title="Click to enlarge image">
+        <a href="#<%= modal_id %>" role="button" data-bs-toggle="modal" data-bs-target="#<%= modal_id %>" title="Click to enlarge image">
           <%= helpers.sidecar_thumbnail_tag(document, size: [400, 400], class: "img-fluid rounded shadow-sm", style: "max-height: 250px; width: 100%; object-fit: contain; cursor: pointer;", alt: document.title) %>
         </a>
-        <div class="small text-muted mt-1" style="font-size: 0.8rem; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#image-lightbox-modal">
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+        <div class="small text-muted mt-1" style="font-size: 0.8rem; cursor: pointer;" role="button" tabindex="0" data-bs-toggle="modal" data-bs-target="#<%= modal_id %>">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" class="me-1" viewBox="0 0 16 16" aria-hidden="true">
             <path fill-rule="evenodd" d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11M13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0"/>
             <path d="M10.344 11.742q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1 6.5 6.5 0 0 1-1.398 1.4z"/>
             <path fill-rule="evenodd" d="M6.5 3a.5.5 0 0 1 .5.5V6h2.5a.5.5 0 0 1 0 1H7v2.5a.5.5 0 0 1-1 0V7H3.5a.5.5 0 0 1 0-1H6V3.5a.5.5 0 0 1 .5-.5"/>
@@ -19,11 +20,11 @@
     </div>
 
     <!-- Lightbox Modal -->
-    <div class="modal fade" id="image-lightbox-modal" tabindex="-1" aria-labelledby="image-lightbox-title" aria-hidden="true">
+    <div class="modal fade" id="<%= modal_id %>" tabindex="-1" aria-labelledby="<%= modal_id %>-title" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="image-lightbox-title"><%= document.title %></h5>
+            <h5 class="modal-title" id="<%= modal_id %>-title"><%= document.title %></h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body text-center p-3 bg-dark">

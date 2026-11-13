@@ -47,6 +47,15 @@ Prior to merging and production rollout, review the following questions with the
 3. **Detail Page Lightbox vs. Direct Link:**
    * *Current Assumption:* Clicking the thumbnail opens a native Bootstrap modal lightbox displaying the full-resolution original image.
    * *Question:* Does the team prefer this lightbox modal, or should clicking open the image in a new browser tab?
+4. **Filename Case-Sensitivity & Normalization Across Environments:**
+   * *Discovered in Review:* macOS (default APFS) is case-insensitive, whereas production Linux containers (ext4) are strictly case-sensitive. If an image is named `Access-CM2.png` in Google Drive but entered as `access-cm2.png` in the Google Sheet, it will succeed locally but 404 in production.
+   * *Question:* Should `sheet_to_solr.py` or the Rails initializer perform case-insensitive fallback matching when resolving images on disk?
+5. **Handling Re-Harvesting for Images Uploaded After Solr Ingestion:**
+   * *Discovered in Review:* If a Solr record is harvested before its image is placed in Google Drive / `public/thumbnails/`, the gem transitions the record to state `:placeheld`. Subsequent runs of `rake gblsci:images:harvest_all` skip `:placeheld` records.
+   * *Question:* Should the cron schedule automatically execute `rake gblsci:images:harvest_retry` or periodically clear placeheld sidecars for records where files now exist?
+6. **Search Index Page N+1 Query Overhead:**
+   * *Discovered in Review:* Evaluating `@document.sidecar&.image&.attached?` for 20+ search result items executes multiple queries per card (`solr_document_sidecars`, `active_storage_attachments`, `active_storage_blobs`).
+   * *Question:* For high traffic or larger pagination sizes, should we implement eager loading / batch fetching of sidecars for all documents in the search response, or cache the attachment status in Redis / Rails cache?
 
 ---
 
@@ -144,17 +153,22 @@ flowchart TD
 
 ### Phase 4: Harvesting & Ingestion Integration
 - [x] Test the rake task `rake gblsci:images:harvest_all` on sample documents (11 succeeded, 0 failed, 3 placeheld).
-- [x] Create `sheet_to_solr_with_images.py` supporting automated image caching and Google Drive sync.
+- [x] Update `sheet_to_solr.py` supporting automated image caching and Google Drive sync.
+- [ ] Configure/update automated cron task with the unified sync & harvesting command:
+  ```bash
+  cd /rails && python3 scripts/sheet_to_solr.py && bin/rails gblsci:images:harvest_all && bin/rails gblsci:images:harvest_retry
+  ```
+  *Note:* Sync the images and we must "harvest" them for sidecar. Retry is needed in case the image is not yet uploaded when the sheet is processed with it.
 
 ### Phase 5: Testing & Verification
 - [x] Verify image rendering on search result cards (thumbnails on left with fallback placeholder for unattached records).
 - [x] Verify image rendering on document show pages (top of right sidebar).
-- [ ] Add unit/model test for `SolrDocumentSidecar` and thumbnail URL resolution.
-- [ ] Verify Docker build (`docker build .`) packages the `public/thumbnails/` directory.
-- [ ] Run CI checks (`bin/brakeman`, `bin/rubocop`, `bin/rails test`).
+- [x] Add unit/model test for `SolrDocumentSidecar` and thumbnail URL resolution.
+- [x] Verify Docker build (`docker build .`) packages the `public/thumbnails/` directory.
+- [x] Run CI checks (`bin/brakeman`, `bin/rubocop`, `bin/rails test`).
 
 ### Phase 6: Operational Documentation
-- [ ] Add `docs/IMAGE_MANAGEMENT.md` with instructions on:
+- [x] Add `IMAGE_MANAGEMENT` section to the README with instructions on:
   - How staff add new images to the Google Drive folder.
   - Image update policy: always use a new filename when changing/updating an image (existing files are not re-downloaded).
   - How the Google Sheet metadata corresponds to Solr (`sfei_image_name_s`).
