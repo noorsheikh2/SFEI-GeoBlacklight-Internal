@@ -14,13 +14,13 @@
   <div class="d-flex flex-row align-items-start my-2">
     <% if @document.respond_to?(:sidecar) && @document.sidecar&.image&.attached? %>
       <div class="document-thumbnail me-3 flex-shrink-0" style="width: 120px;">
-        <%= helpers.link_to helpers.url_for_document(@document), class: "d-block text-decoration-none", title: @document.title do %>
+        <%= helpers.link_to helpers.solr_document_path(@document), class: "d-block text-decoration-none", title: @document.title do %>
           <%= helpers.sidecar_thumbnail_tag(@document, size: [120, 120], class: "img-fluid img-thumbnail rounded shadow-sm", style: "width: 120px; height: 120px; object-fit: cover;") %>
         <% end %>
       </div>
     <% else %>
       <div class="document-thumbnail me-3 flex-shrink-0" style="width: 120px;">
-        <%= helpers.link_to helpers.url_for_document(@document), class: "d-flex align-items-center justify-content-center bg-light border rounded text-secondary shadow-sm text-decoration-none", style: "width: 120px; height: 120px;", title: @document.title do %>
+        <%= helpers.link_to helpers.solr_document_path(@document), class: "d-flex align-items-center justify-content-center bg-light border rounded text-secondary shadow-sm text-decoration-none", style: "width: 120px; height: 120px;", title: @document.title do %>
           <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="text-secondary opacity-50" viewBox="0 0 16 16" aria-hidden="true">
             <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10m0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6"/>
           </svg>
