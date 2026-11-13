@@ -18,6 +18,9 @@ module App
 
     # Configuration for the application, engines, and railties goes here.
     #
+    # Active Storage: Stream files directly via proxy mode to avoid 302 redirects and enable caching
+    config.active_storage.resolve_model_to_route = :rails_storage_proxy
+    #
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #

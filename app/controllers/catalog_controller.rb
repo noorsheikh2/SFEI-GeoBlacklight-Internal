@@ -29,13 +29,13 @@ class CatalogController < ApplicationController
 
     # GeoBlacklight Defaults
     # * Adds the "map" split view for catalog#index
-    config.view.split(partials: ["index"])
+    config.view.split(partials: [ "index" ])
     config.view.delete_field("list")
 
     # solr field configuration for search results/index views
     # config.index.show_link = 'title_display'
     # config.index.record_display_type = 'format'
-    config.index.document_component = Geoblacklight::SearchResultComponent
+    config.index.document_component = SearchResultComponent
     config.index.title_field = Settings.FIELDS.TITLE
 
     # solr field configuration for document/show views
@@ -44,7 +44,7 @@ class CatalogController < ApplicationController
     # remove the lines deleting and re-adding the :show partial
     config.show.display_type_field = "format"
     config.show.document_component = Geoblacklight::DocumentComponent
-    config.show.sidebar_component = Geoblacklight::Document::SidebarComponent
+    config.show.sidebar_component = DocumentSidebarComponent
     config.header_component = Geoblacklight::HeaderComponent
 
     # solr fields that will be treated as facets by the blacklight application
@@ -151,6 +151,7 @@ class CatalogController < ApplicationController
 
     config.add_show_field Settings.FIELDS.ALTERNATIVE_TITLE, label: "Alternative Title", itemprop: "alt_title"
     config.add_show_field Settings.FIELDS.DESCRIPTION, label: "Description", itemprop: "description", helper_method: :render_value_as_truncate_abstract
+    config.add_show_field "sfei_image_name_s", label: "Preview Image", helper_method: :render_sidecar_image_show
     config.add_show_field Settings.FIELDS.CREATOR, label: "Creator", itemprop: "creator"
     config.add_show_field Settings.FIELDS.PUBLISHER, label: "Publisher", itemprop: "publisher"
     config.add_show_field Settings.FIELDS.PROVIDER, label: "Provider", link_to_facet: true
@@ -171,7 +172,7 @@ class CatalogController < ApplicationController
     config.add_show_field(
       Settings.FIELDS.REFERENCES,
       label: "More details at",
-      accessor: [:external_url],
+      accessor: [ :external_url ],
       if: proc { |_, _, doc| doc.external_url },
       helper_method: :render_references_url
     )

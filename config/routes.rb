@@ -1,24 +1,24 @@
 Rails.application.routes.draw do
-  mount Blacklight::Engine => '/'
+  mount Blacklight::Engine => "/"
   root to: "catalog#index"
   concern :searchable, Blacklight::Routes::Searchable.new
 
-  resource :catalog, only: [], as: 'catalog', path: '/catalog', controller: 'catalog' do
+  resource :catalog, only: [], as: "catalog", path: "/catalog", controller: "catalog" do
     concerns :searchable
   end
   devise_for :users
 
   concern :exportable, Blacklight::Routes::Exportable.new
 
-  resources :solr_documents, only: [:show], path: '/catalog', controller: 'catalog' do
+  resources :solr_documents, only: [ :show ], path: "/catalog", controller: "catalog" do
     concerns :exportable
   end
 
-  resources :bookmarks, only: [:index, :update, :create, :destroy] do
+  resources :bookmarks, only: [ :index, :update, :create, :destroy ] do
     concerns :exportable
 
     collection do
-      delete 'clear'
+      delete "clear"
     end
   end
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
@@ -31,11 +31,11 @@ Rails.application.routes.draw do
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
 
-  # Defines the root path route ("/")
-  # root "posts#index"
-mount Geoblacklight::Engine => 'geoblacklight'
+# Defines the root path route ("/")
+# root "posts#index"
+mount Geoblacklight::Engine => "geoblacklight"
         concern :gbl_exportable, Geoblacklight::Routes::Exportable.new
-        resources :solr_documents, only: [:show], path: '/catalog', controller: 'catalog' do
+        resources :solr_documents, only: [ :show ], path: "/catalog", controller: "catalog" do
           concerns :gbl_exportable
         end
         concern :gbl_wms, Geoblacklight::Routes::Wms.new
@@ -46,5 +46,5 @@ mount Geoblacklight::Engine => 'geoblacklight'
         namespace :download do
           concerns :gbl_downloadable
         end
-        resources :download, only: [:show]
+        resources :download, only: [ :show ]
 end
