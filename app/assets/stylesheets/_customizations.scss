@@ -21,3 +21,11 @@ $logo-image: url("images/blacklight/logo.svg");
 
 // Example: Bootstrap Link color
 // $link-color: $blue;
+
+// TEST: Make all text pink
+body {
+  color: hotpink !important;
+  h1, h2, h3, h4, h5, h6, p, a, span, label {
+    color: hotpink !important;
+  }
+}
