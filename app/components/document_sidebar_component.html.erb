@@ -24,8 +24,16 @@
       <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="<%= modal_id %>-title"><%= document.title %></h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <h5 class="modal-title text-truncate me-2" id="<%= modal_id %>-title"><%= document.title %></h5>
+            <div class="d-flex align-items-center ms-auto">
+              <%= helpers.link_to helpers.rails_blob_path(document.sidecar.image, disposition: "inline"), target: "_blank", rel: "noopener", class: "btn btn-sm btn-outline-secondary me-2 text-nowrap", title: "Open full-resolution image in new tab" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" class="me-1" viewBox="0 0 16 16" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5"/>
+                  <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0z"/>
+                </svg>Open full size
+              <% end %>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
           </div>
           <div class="modal-body text-center p-3 bg-dark">
             <%= image_tag document.sidecar.image, class: "img-fluid rounded", style: "max-height: 80vh; max-width: 100%; object-fit: contain;", alt: document.title %>

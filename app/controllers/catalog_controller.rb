@@ -151,7 +151,6 @@ class CatalogController < ApplicationController
 
     config.add_show_field Settings.FIELDS.ALTERNATIVE_TITLE, label: "Alternative Title", itemprop: "alt_title"
     config.add_show_field Settings.FIELDS.DESCRIPTION, label: "Description", itemprop: "description", helper_method: :render_value_as_truncate_abstract
-    config.add_show_field "sfei_image_name_s", label: "Preview Image", helper_method: :render_sidecar_image_show
     config.add_show_field Settings.FIELDS.CREATOR, label: "Creator", itemprop: "creator"
     config.add_show_field Settings.FIELDS.PUBLISHER, label: "Publisher", itemprop: "publisher"
     config.add_show_field Settings.FIELDS.PROVIDER, label: "Provider", link_to_facet: true

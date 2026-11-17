@@ -160,6 +160,7 @@ GeoBlacklight displays curated preview and thumbnail images beside search result
    - Records are indexed into Solr containing `sfei_image_name_s`.
 4. **Sidecar Attachment (`rake gblsci:images:harvest_all`):**
    - Active Storage attaches local images from `public/thumbnails/` to `SolrDocumentSidecar` records.
+   - Resized thumbnail variants (square list and sidebar previews) are automatically pre-warmed upon attachment.
    - Attachments are served via Rails storage proxy routes with long-term HTTP caching.
 
 ### Step-by-Step: Adding New Images

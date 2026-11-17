@@ -23,12 +23,11 @@ Key requirements:
   We assume SFEI does **not** want to use an external GeoServer WMS (`GetMap`) service to dynamically generate thumbnail images from raw vector/raster GIS layers. SFEI scientists and cartographers produce high-quality, publication-ready graphics, figures, and maps curated in Google Drive (`sfei_image_name_s`), which look significantly better than automated wireframe snapshots. GeoServer settings (`INSTITUTION_GEOSERVER_URL`, etc.) in `config/settings.yml` remain blank.
 * **Follow-on Capability:** If SFEI ever decides in the future to auto-generate thumbnails from a live GeoServer instance, the application is already compatible: staff can populate `INSTITUTION_GEOSERVER_URL` and `INSTITUTION_LOCAL_NAME` in `config/settings.yml`, and the plugin's harvester will fall back to querying GeoServer WMS `GetMap` for any records without an explicit `sfei_image_name_s` value.
 * **Search Result Thumbnail Sizing:**  
-  We assumed a **120px × 120px** square thumbnail on search result cards (`object-fit: cover`, rounded with light border/shadow). For records lacking an attached image, a matching 120×120 neutral SVG map pin placeholder is displayed to preserve list alignment.
+  We use a **150px × 150px** square thumbnail on search result cards (`object-fit: cover`, rounded with light border/shadow). For records lacking an attached image, a matching 150×150 neutral SVG map pin placeholder is displayed to preserve list alignment. `.document-thumbnail` is explicitly styled with `padding: 0 !important;` to eliminate any inherited left indents from core Blacklight styling.
 * **Detail (Show) Page Placement & Lightbox:**  
-  We assumed:
-  1. **Location:** In the right sidebar, positioned **below the tools/actions menu** so the image aligns horizontally with the main page title and description.
+  1. **Location:** In the right sidebar only (removed from the metadata attribute table per client feedback), positioned **below the tools/actions menu** so the image aligns horizontally with the main page title and description.
   2. **Dimensions:** Responsive sidebar width with `max-height: 250px` (`object-fit: contain`) to accommodate varying landscape/portrait aspect ratios without cropping.
-  3. **Lightbox Modal:** Clicking the sidebar thumbnail opens a native Bootstrap 5 modal lightbox displaying the full-resolution graphic with a dark backdrop, allowing users to examine fine text, maps, and legends.
+  3. **Lightbox Modal & "Open Full Size" Button:** Clicking the sidebar thumbnail opens a native Bootstrap 5 modal lightbox (`modal-xl`, `modal-dialog-centered`) displaying the image with a dark backdrop (`max-height: 80vh`). The modal header includes an **"Open full size"** button (`target="_blank"`) that opens the unscaled, original Active Storage image in a new tab for native browser zoom and 1:1 actual-size inspection.
 
 ---
 
@@ -36,17 +35,12 @@ Key requirements:
 
 Prior to merging and production rollout, review the following questions with the team:
 
-1. **Search Results Thumbnail Dimensions:**
-   * *Current Assumption:* 120px × 120px.
-   * *Question:* Does the team prefer this 120px square size, or would a larger format (e.g. 150px) or smaller format (e.g. 100px) be preferred?
-2. **Detail Page Placement:**
-   * *Current State:* Both locations are currently rendered for direct side-by-side comparison:
-     1. In the right sidebar below the tools menu.
-     2. In the metadata attribute table directly under **Description** with the label **"Preview Image"**.
-   * *Question for team:* Which location does the team prefer for the final version? (Sidebar only, metadata table only, or both?)
-3. **Detail Page Lightbox vs. Direct Link:**
-   * *Current Assumption:* Clicking the thumbnail opens a native Bootstrap modal lightbox displaying the full-resolution original image.
-   * *Question:* Does the team prefer this lightbox modal, or should clicking open the image in a new browser tab?
+1. **Search Results Thumbnail Dimensions (Resolved):**
+   * *Client Decision:* 150px × 150px square thumbnail.
+2. **Detail Page Placement (Resolved):**
+   * *Client Decision:* Sidebar only (removed from metadata table).
+3. **Detail Page Lightbox & Full Resolution View (Resolved):**
+   * *Client Decision:* Native responsive Bootstrap 5 modal lightbox with an **"Open full size"** button in the modal header linking directly to the original Active Storage blob in a new tab (`target="_blank"`).
 4. **Filename Case-Sensitivity & Normalization Across Environments:**
    * *Discovered in Review:* macOS (default APFS) is case-insensitive, whereas production Linux containers (ext4) are strictly case-sensitive. If an image is named `Access-CM2.png` in Google Drive but entered as `access-cm2.png` in the Google Sheet, it will succeed locally but 404 in production.
    * *Question:* Should `sheet_to_solr.py` or the Rails initializer perform case-insensitive fallback matching when resolving images on disk?
@@ -146,10 +140,10 @@ flowchart TD
 - [x] Configure `config/initializers/geoblacklight_sidecar_images.rb` to:
   * Check `public/thumbnails/<filename>` locally for instant, offline attachment.
   * Bridge `Geoblacklight::SolrDocument.find` to `::SolrDocument.find` for the pre-alpha gem job.
-- [x] Implement custom `SearchResultComponent` (`app/components/search_result_component.rb` & `.html.erb`) subclassing `Geoblacklight::SearchResultComponent` to render `sidecar_thumbnail_tag` beside search results.
+- [x] Implement custom `SearchResultComponent` (`app/components/search_result_component.rb` & `.html.erb`) subclassing `Geoblacklight::SearchResultComponent` to render 150px × 150px square thumbnails (`object-fit: cover`) with matching placeholder and neutralized padding beside search results.
 - [x] Update `CatalogController` with `config.index.document_component = SearchResultComponent` so Blacklight renders our custom component template instead of the gem's default.
-- [x] Implement custom `DocumentSidebarComponent` (`app/components/document_sidebar_component.rb` & `.html.erb`) subclassing `Geoblacklight::Document::SidebarComponent` to display the thumbnail at the top of the sidebar on show pages.
-- [x] Update `CatalogController` with `config.show.sidebar_component = DocumentSidebarComponent`.
+- [x] Implement custom `DocumentSidebarComponent` (`app/components/document_sidebar_component.rb` & `.html.erb`) subclassing `Geoblacklight::Document::SidebarComponent` to display the thumbnail at the top of the sidebar on show pages, including a Bootstrap 5 modal lightbox with an "Open full size" button.
+- [x] Update `CatalogController` with `config.show.sidebar_component = DocumentSidebarComponent` (and removed redundant `sfei_image_name_s` from metadata show fields).
 
 ### Phase 4: Harvesting & Ingestion Integration
 - [x] Test the rake task `rake gblsci:images:harvest_all` on sample documents (11 succeeded, 0 failed, 3 placeheld).
