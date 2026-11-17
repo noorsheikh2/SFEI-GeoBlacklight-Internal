@@ -10289,3 +10289,461 @@ DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlackligh
 Completed 200 OK in 192ms (Views: 153.1ms | ActiveRecord: 2.3ms (4 queries, 0 cached) | GC: 80.7ms)
 
 
+DEPRECATION WARNING: config/routes.rb needs these changes before GeoBlacklight 6: GeoBlacklight 6 removes the generated download subsystem, so delete the `concern :gbl_downloadable`, the `namespace :download` block and `resources :download, only: [:show]` (called from <main> at /var/www/datagb.sfei.org/app-dev/config/environment.rb:5)
+DEPRECATION WARNING: app/assets/stylesheets/_customizations.scss needs these changes before GeoBlacklight 6: stop importing images/blacklight/logo.svg, because GeoBlacklight 6 moves the logo to images/geoblacklight/logo.svg, with images/geoblacklight/logo-dark.svg for dark mode (called from <main> at /var/www/datagb.sfei.org/app-dev/config/environment.rb:5)
+DEPRECATION WARNING: config/settings.yml needs these changes before GeoBlacklight 6: delete the icon attribute from RELATIONSHIPS_SHOWN, because GeoBlacklight 6 labels related records with a resource class badge instead and only warns, once a boot, that the key is dead; remove Settings.DOWNLOAD_FORMATS, because GeoBlacklight 6 removes the generated download subsystem and never reads it. Note the 4.x upgrade added this key because GeoBlacklight 5 required it; remove Settings.HELP_TEXT, because GeoBlacklight 6 removes the viewer help text popovers along with ViewerHelpTextComponent and no longer reads the key at all; remove Settings.ICON_MAPPING, because GeoBlacklight 6 drops the lookup from its geoblacklight_icon helper and removes the institution icon components this maps onto, so a provider named here renders as an empty span; remove Settings.LEAFLET, because GeoBlacklight 6 replaces the leaflet and openlayers viewers with <ogm-viewer> and reads none of this section — including the BASEMAPS key 5.3 added for CARTO API keys, which becomes light_basemap_url and dark_basemap_url on Geoblacklight.configuration, each the URL of a MapLibre style document; remove Settings.SIDEBAR_STATIC_MAP, because GeoBlacklight 6's StaticMapComponent decides for itself, from whether the record is previewable and georeferenced, and never reads this list of viewer protocols; remove Settings.TIMEOUT_DOWNLOAD, because GeoBlacklight 6 removes the generated download subsystem and never reads it; rename the 21 uppercase top level keys to lowercase, because GeoBlacklight 6 resolves settings case-insensitively and warns once per uppercase key it has to fall back to; convert the Settings.UPPERCASE reads in app/controllers/catalog_controller.rb and app/models/solr_document.rb in the same pass, or the application will not boot (called from <main> at /var/www/datagb.sfei.org/app-dev/config/environment.rb:5)
+DEPRECATION WARNING: app/controllers/catalog_controller.rb needs these changes before GeoBlacklight 6: stop passing `item_component: Geoblacklight::IconFacetItemComponent` to dct_accessRights_s, schema_provider_s, because GeoBlacklight 6 removes that class and the reference will not resolve; stop passing `helper_method: :snippit` to the dct_description_sm index field, because GeoBlacklight 6 removes that helper; GeoBlacklight 6 truncates index field values itself; stop passing `helper_method: :render_value_as_truncate_abstract` to the dct_description_sm show field, because GeoBlacklight 6 removes that helper; use `component: Geoblacklight::MetadataDescriptionMarkdownComponent` instead; translate `config.basemap_provider = "osm"` into the light_basemap_url and dark_basemap_url that GeoBlacklight 6 reads from Geoblacklight.configuration, which take the URL of a MapLibre style document rather than a preset name; left here it reaches nothing and <ogm-viewer> draws its own basemap (called from <main> at /var/www/datagb.sfei.org/app-dev/config/environment.rb:5)
+DEPRECATION WARNING: Blacklight 8.13.0 is too old for GeoBlacklight 6, which requires Blacklight 9.1 or later, because GeoBlacklight 6 calls blacklight_config.dark_mode_support and resolves per-field layout components, both of which Blacklight added in 9.1, and its geosearch facet and styling are written against Blacklight 9's accordion facets (called from <main> at /var/www/datagb.sfei.org/app-dev/config/environment.rb:5)
+DEPRECATION WARNING: Rails 7.2.3 is too old for GeoBlacklight 6, which requires Rails 8.0 or later, because GeoBlacklight 6 drops support for earlier versions (called from <main> at /var/www/datagb.sfei.org/app-dev/config/environment.rb:5)
+Started GET "/" for 127.0.0.1 at 2026-11-17 21:59:07 +0000
+  [1m[36mActiveRecord::SchemaMigration Load (1.5ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Processing by CatalogController#index as */*
+Solr query: get select {"qt"=>nil, "start"=>0, "q.alt"=>"*:*", "facet"=>true, "facet.field"=>["gbl_indexYear_im", "dct_spatial_sm", "dct_accessRights_s", "gbl_resourceClass_sm", "gbl_resourceType_sm", "dct_format_s", "dct_subject_sm", "dcat_theme_sm", "dct_creator_sm", "dct_publisher_sm", "schema_provider_s", "gbl_georeferenced_b", "locn_geometry", "pcdm_memberOf_sm", "dct_isPartOf_sm", "dct_relation_sm", "dct_replaces_sm", "dct_isReplacedBy_sm", "dct_source_sm", "dct_isVersionOf_sm"], "f.gbl_indexYear_im.facet.limit"=>11, "f.dct_spatial_sm.facet.limit"=>9, "f.dct_accessRights_s.facet.limit"=>9, "f.gbl_resourceClass_sm.facet.limit"=>9, "f.gbl_resourceType_sm.facet.limit"=>9, "f.dct_format_s.facet.limit"=>9, "f.dct_subject_sm.facet.limit"=>9, "f.dcat_theme_sm.facet.limit"=>9, "f.dct_creator_sm.facet.limit"=>9, "f.dct_publisher_sm.facet.limit"=>9, "f.schema_provider_s.facet.limit"=>9, "f.gbl_georeferenced_b.facet.limit"=>4, "rows"=>10, "sort"=>"score desc, dct_title_sort asc", "fq"=>["-gbl_suppressed_b: true"]}
+Solr fetch (25.2ms)
+  Rendering layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/_home_text.html.erb (Duration: 24.2ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_home.html.erb (Duration: 24.9ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_sitelinks_search_box.html.erb (Duration: 0.3ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight (Duration: 27.2ms | GC: 0.0ms)
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[36mUser Create (3.8ms)[0m  [1m[32mINSERT INTO "users" ("email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "created_at", "updated_at", "guest") VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING "id"[0m  [["email", "[FILTERED]"], ["encrypted_password", "[FILTERED]"], ["reset_password_token", "[FILTERED]"], ["reset_password_sent_at", "[FILTERED]"], ["remember_created_at", nil], ["created_at", "2026-11-17 21:59:08.171227"], ["updated_at", "2026-11-17 21:59:08.171227"], ["guest", 1]]
+  [1m[36mTRANSACTION (5.5ms)[0m  [1m[36mcommit transaction[0m
+  [1m[36mBookmark Count (0.2ms)[0m  [1m[34mSELECT COUNT(*) FROM "bookmarks" WHERE "bookmarks"."user_id" = ? AND "bookmarks"."user_type" = ?[0m  [["user_id", 1], ["user_type", "User"]]
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_bookmark.html.erb (Duration: 32.1ms | GC: 0.4ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_search_history.html.erb (Duration: 2.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_user_util_links.html.erb (Duration: 62.7ms | GC: 0.7ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_header_navbar.html.erb (Duration: 91.7ms | GC: 1.4ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_flash_msg.html.erb within shared/_flash_messages (Duration: 0.7ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_footer.html.erb (Duration: 0.2ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_modal.html.erb (Duration: 0.2ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb (Duration: 626.8ms | GC: 60.5ms)
+  Rendered layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb (Duration: 655.3ms | GC: 60.5ms)
+Completed 200 OK in 740ms (Views: 649.0ms | ActiveRecord: 11.7ms (2 queries, 0 cached) | GC: 67.9ms)
+
+
+[ActionDispatch::HostAuthorization::DefaultResponseApp] Blocked hosts: datagb-dev.sfei.org, datagb-dev.sfei.org
+[ActionDispatch::HostAuthorization::DefaultResponseApp] Blocked hosts: datagb-dev.sfei.org, datagb-dev.sfei.org
+DEPRECATION WARNING: config/routes.rb needs these changes before GeoBlacklight 6: GeoBlacklight 6 removes the generated download subsystem, so delete the `concern :gbl_downloadable`, the `namespace :download` block and `resources :download, only: [:show]` (called from <main> at /var/www/datagb.sfei.org/app-dev/config/environment.rb:5)
+DEPRECATION WARNING: app/assets/stylesheets/_customizations.scss needs these changes before GeoBlacklight 6: stop importing images/blacklight/logo.svg, because GeoBlacklight 6 moves the logo to images/geoblacklight/logo.svg, with images/geoblacklight/logo-dark.svg for dark mode (called from <main> at /var/www/datagb.sfei.org/app-dev/config/environment.rb:5)
+DEPRECATION WARNING: config/settings.yml needs these changes before GeoBlacklight 6: delete the icon attribute from RELATIONSHIPS_SHOWN, because GeoBlacklight 6 labels related records with a resource class badge instead and only warns, once a boot, that the key is dead; remove Settings.DOWNLOAD_FORMATS, because GeoBlacklight 6 removes the generated download subsystem and never reads it. Note the 4.x upgrade added this key because GeoBlacklight 5 required it; remove Settings.HELP_TEXT, because GeoBlacklight 6 removes the viewer help text popovers along with ViewerHelpTextComponent and no longer reads the key at all; remove Settings.ICON_MAPPING, because GeoBlacklight 6 drops the lookup from its geoblacklight_icon helper and removes the institution icon components this maps onto, so a provider named here renders as an empty span; remove Settings.LEAFLET, because GeoBlacklight 6 replaces the leaflet and openlayers viewers with <ogm-viewer> and reads none of this section — including the BASEMAPS key 5.3 added for CARTO API keys, which becomes light_basemap_url and dark_basemap_url on Geoblacklight.configuration, each the URL of a MapLibre style document; remove Settings.SIDEBAR_STATIC_MAP, because GeoBlacklight 6's StaticMapComponent decides for itself, from whether the record is previewable and georeferenced, and never reads this list of viewer protocols; remove Settings.TIMEOUT_DOWNLOAD, because GeoBlacklight 6 removes the generated download subsystem and never reads it; rename the 21 uppercase top level keys to lowercase, because GeoBlacklight 6 resolves settings case-insensitively and warns once per uppercase key it has to fall back to; convert the Settings.UPPERCASE reads in app/controllers/catalog_controller.rb and app/models/solr_document.rb in the same pass, or the application will not boot (called from <main> at /var/www/datagb.sfei.org/app-dev/config/environment.rb:5)
+DEPRECATION WARNING: app/controllers/catalog_controller.rb needs these changes before GeoBlacklight 6: stop passing `item_component: Geoblacklight::IconFacetItemComponent` to dct_accessRights_s, schema_provider_s, because GeoBlacklight 6 removes that class and the reference will not resolve; stop passing `helper_method: :snippit` to the dct_description_sm index field, because GeoBlacklight 6 removes that helper; GeoBlacklight 6 truncates index field values itself; stop passing `helper_method: :render_value_as_truncate_abstract` to the dct_description_sm show field, because GeoBlacklight 6 removes that helper; use `component: Geoblacklight::MetadataDescriptionMarkdownComponent` instead; translate `config.basemap_provider = "osm"` into the light_basemap_url and dark_basemap_url that GeoBlacklight 6 reads from Geoblacklight.configuration, which take the URL of a MapLibre style document rather than a preset name; left here it reaches nothing and <ogm-viewer> draws its own basemap (called from <main> at /var/www/datagb.sfei.org/app-dev/config/environment.rb:5)
+DEPRECATION WARNING: Blacklight 8.13.0 is too old for GeoBlacklight 6, which requires Blacklight 9.1 or later, because GeoBlacklight 6 calls blacklight_config.dark_mode_support and resolves per-field layout components, both of which Blacklight added in 9.1, and its geosearch facet and styling are written against Blacklight 9's accordion facets (called from <main> at /var/www/datagb.sfei.org/app-dev/config/environment.rb:5)
+DEPRECATION WARNING: Rails 7.2.3 is too old for GeoBlacklight 6, which requires Rails 8.0 or later, because GeoBlacklight 6 drops support for earlier versions (called from <main> at /var/www/datagb.sfei.org/app-dev/config/environment.rb:5)
+Started GET "/" for 172.69.74.232 at 2026-11-17 22:04:09 +0000
+Cannot render console from 172.69.74.232! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+  [1m[36mActiveRecord::SchemaMigration Load (0.1ms)[0m  [1m[34mSELECT "schema_migrations"."version" FROM "schema_migrations" ORDER BY "schema_migrations"."version" ASC[0m
+Processing by CatalogController#index as HTML
+Solr query: get select {"qt"=>nil, "start"=>0, "q.alt"=>"*:*", "facet"=>true, "facet.field"=>["gbl_indexYear_im", "dct_spatial_sm", "dct_accessRights_s", "gbl_resourceClass_sm", "gbl_resourceType_sm", "dct_format_s", "dct_subject_sm", "dcat_theme_sm", "dct_creator_sm", "dct_publisher_sm", "schema_provider_s", "gbl_georeferenced_b", "locn_geometry", "pcdm_memberOf_sm", "dct_isPartOf_sm", "dct_relation_sm", "dct_replaces_sm", "dct_isReplacedBy_sm", "dct_source_sm", "dct_isVersionOf_sm"], "f.gbl_indexYear_im.facet.limit"=>11, "f.dct_spatial_sm.facet.limit"=>9, "f.dct_accessRights_s.facet.limit"=>9, "f.gbl_resourceClass_sm.facet.limit"=>9, "f.gbl_resourceType_sm.facet.limit"=>9, "f.dct_format_s.facet.limit"=>9, "f.dct_subject_sm.facet.limit"=>9, "f.dcat_theme_sm.facet.limit"=>9, "f.dct_creator_sm.facet.limit"=>9, "f.dct_publisher_sm.facet.limit"=>9, "f.schema_provider_s.facet.limit"=>9, "f.gbl_georeferenced_b.facet.limit"=>4, "rows"=>10, "sort"=>"score desc, dct_title_sort asc", "fq"=>["-gbl_suppressed_b: true"]}
+Solr fetch (41.4ms)
+  Rendering layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/_home_text.html.erb (Duration: 30.4ms | GC: 2.4ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_home.html.erb (Duration: 31.3ms | GC: 2.4ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_sitelinks_search_box.html.erb (Duration: 0.5ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight (Duration: 34.2ms | GC: 2.4ms)
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[36mUser Create (4.2ms)[0m  [1m[32mINSERT INTO "users" ("email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "created_at", "updated_at", "guest") VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING "id"[0m  [["email", "[FILTERED]"], ["encrypted_password", "[FILTERED]"], ["reset_password_token", "[FILTERED]"], ["reset_password_sent_at", "[FILTERED]"], ["remember_created_at", nil], ["created_at", "2026-11-17 22:04:10.164250"], ["updated_at", "2026-11-17 22:04:10.164250"], ["guest", 1]]
+  [1m[36mTRANSACTION (3.7ms)[0m  [1m[36mcommit transaction[0m
+  [1m[36mBookmark Count (0.1ms)[0m  [1m[34mSELECT COUNT(*) FROM "bookmarks" WHERE "bookmarks"."user_id" = ? AND "bookmarks"."user_type" = ?[0m  [["user_id", 2], ["user_type", "User"]]
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_bookmark.html.erb (Duration: 14.8ms | GC: 0.8ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_search_history.html.erb (Duration: 1.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_user_util_links.html.erb (Duration: 43.7ms | GC: 2.7ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_header_navbar.html.erb (Duration: 79.0ms | GC: 19.7ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_flash_msg.html.erb within shared/_flash_messages (Duration: 0.7ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_footer.html.erb (Duration: 0.2ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_modal.html.erb (Duration: 0.2ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb (Duration: 366.8ms | GC: 50.7ms)
+  Rendered layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb (Duration: 402.8ms | GC: 53.1ms)
+Completed 200 OK in 529ms (Views: 401.2ms | ActiveRecord: 10.3ms (2 queries, 0 cached) | GC: 122.5ms)
+
+
+Started GET "/catalog/opensearch.xml" for 172.69.74.232 at 2026-11-17 22:04:12 +0000
+Cannot render console from 172.69.74.232! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by CatalogController#opensearch as XML
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/opensearch.xml.builder
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/opensearch.xml.builder (Duration: 2.5ms | GC: 0.0ms)
+Completed 200 OK in 16ms (Views: 3.9ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 1.1ms)
+
+
+Started GET "/" for 104.22.193.160 at 2026-11-17 22:07:03 +0000
+Cannot render console from 104.22.193.160! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by CatalogController#index as HTML
+Solr query: get select {"qt"=>nil, "start"=>0, "q.alt"=>"*:*", "facet"=>true, "facet.field"=>["gbl_indexYear_im", "dct_spatial_sm", "dct_accessRights_s", "gbl_resourceClass_sm", "gbl_resourceType_sm", "dct_format_s", "dct_subject_sm", "dcat_theme_sm", "dct_creator_sm", "dct_publisher_sm", "schema_provider_s", "gbl_georeferenced_b", "locn_geometry", "pcdm_memberOf_sm", "dct_isPartOf_sm", "dct_relation_sm", "dct_replaces_sm", "dct_isReplacedBy_sm", "dct_source_sm", "dct_isVersionOf_sm"], "f.gbl_indexYear_im.facet.limit"=>11, "f.dct_spatial_sm.facet.limit"=>9, "f.dct_accessRights_s.facet.limit"=>9, "f.gbl_resourceClass_sm.facet.limit"=>9, "f.gbl_resourceType_sm.facet.limit"=>9, "f.dct_format_s.facet.limit"=>9, "f.dct_subject_sm.facet.limit"=>9, "f.dcat_theme_sm.facet.limit"=>9, "f.dct_creator_sm.facet.limit"=>9, "f.dct_publisher_sm.facet.limit"=>9, "f.schema_provider_s.facet.limit"=>9, "f.gbl_georeferenced_b.facet.limit"=>4, "rows"=>10, "sort"=>"score desc, dct_title_sort asc", "fq"=>["-gbl_suppressed_b: true"]}
+Solr fetch (12.6ms)
+  Rendering layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/_home_text.html.erb (Duration: 5.6ms | GC: 0.1ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_home.html.erb (Duration: 5.9ms | GC: 0.1ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_sitelinks_search_box.html.erb (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight (Duration: 6.5ms | GC: 0.1ms)
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[36mUser Create (3.3ms)[0m  [1m[32mINSERT INTO "users" ("email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "created_at", "updated_at", "guest") VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING "id"[0m  [["email", "[FILTERED]"], ["encrypted_password", "[FILTERED]"], ["reset_password_token", "[FILTERED]"], ["reset_password_sent_at", "[FILTERED]"], ["remember_created_at", nil], ["created_at", "2026-11-17 22:07:03.818325"], ["updated_at", "2026-11-17 22:07:03.818325"], ["guest", 1]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[36mcommit transaction[0m
+  [1m[36mBookmark Count (0.2ms)[0m  [1m[34mSELECT COUNT(*) FROM "bookmarks" WHERE "bookmarks"."user_id" = ? AND "bookmarks"."user_type" = ?[0m  [["user_id", 3], ["user_type", "User"]]
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_bookmark.html.erb (Duration: 3.4ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_search_history.html.erb (Duration: 0.3ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_user_util_links.html.erb (Duration: 13.4ms | GC: 0.4ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_header_navbar.html.erb (Duration: 16.7ms | GC: 0.4ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_flash_msg.html.erb within shared/_flash_messages (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_footer.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_modal.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb (Duration: 27.0ms | GC: 0.5ms)
+  Rendered layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb (Duration: 34.0ms | GC: 0.6ms)
+Completed 200 OK in 61ms (Views: 30.7ms | ActiveRecord: 3.6ms (2 queries, 0 cached) | GC: 0.8ms)
+
+
+Started GET "/catalog/opensearch.xml" for 104.22.193.160 at 2026-11-17 22:07:04 +0000
+Cannot render console from 104.22.193.160! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by CatalogController#opensearch as XML
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/opensearch.xml.builder
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/opensearch.xml.builder (Duration: 2.1ms | GC: 0.0ms)
+Completed 200 OK in 13ms (Views: 2.5ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/" for 162.158.186.39 at 2026-11-17 22:07:07 +0000
+Cannot render console from 162.158.186.39! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by CatalogController#index as HTML
+Solr query: get select {"qt"=>nil, "start"=>0, "q.alt"=>"*:*", "facet"=>true, "facet.field"=>["gbl_indexYear_im", "dct_spatial_sm", "dct_accessRights_s", "gbl_resourceClass_sm", "gbl_resourceType_sm", "dct_format_s", "dct_subject_sm", "dcat_theme_sm", "dct_creator_sm", "dct_publisher_sm", "schema_provider_s", "gbl_georeferenced_b", "locn_geometry", "pcdm_memberOf_sm", "dct_isPartOf_sm", "dct_relation_sm", "dct_replaces_sm", "dct_isReplacedBy_sm", "dct_source_sm", "dct_isVersionOf_sm"], "f.gbl_indexYear_im.facet.limit"=>11, "f.dct_spatial_sm.facet.limit"=>9, "f.dct_accessRights_s.facet.limit"=>9, "f.gbl_resourceClass_sm.facet.limit"=>9, "f.gbl_resourceType_sm.facet.limit"=>9, "f.dct_format_s.facet.limit"=>9, "f.dct_subject_sm.facet.limit"=>9, "f.dcat_theme_sm.facet.limit"=>9, "f.dct_creator_sm.facet.limit"=>9, "f.dct_publisher_sm.facet.limit"=>9, "f.schema_provider_s.facet.limit"=>9, "f.gbl_georeferenced_b.facet.limit"=>4, "rows"=>10, "sort"=>"score desc, dct_title_sort asc", "fq"=>["-gbl_suppressed_b: true"]}
+Solr fetch (14.4ms)
+  Rendering layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/_home_text.html.erb (Duration: 9.3ms | GC: 0.3ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_home.html.erb (Duration: 9.7ms | GC: 0.3ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_sitelinks_search_box.html.erb (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight (Duration: 10.5ms | GC: 0.3ms)
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[36mUser Create (4.5ms)[0m  [1m[32mINSERT INTO "users" ("email", "encrypted_password", "reset_password_token", "reset_password_sent_at", "remember_created_at", "created_at", "updated_at", "guest") VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING "id"[0m  [["email", "[FILTERED]"], ["encrypted_password", "[FILTERED]"], ["reset_password_token", "[FILTERED]"], ["reset_password_sent_at", "[FILTERED]"], ["remember_created_at", nil], ["created_at", "2026-11-17 22:07:07.162937"], ["updated_at", "2026-11-17 22:07:07.162937"], ["guest", 1]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[36mcommit transaction[0m
+  [1m[36mBookmark Count (0.3ms)[0m  [1m[34mSELECT COUNT(*) FROM "bookmarks" WHERE "bookmarks"."user_id" = ? AND "bookmarks"."user_type" = ?[0m  [["user_id", 4], ["user_type", "User"]]
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_bookmark.html.erb (Duration: 5.9ms | GC: 0.3ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_search_history.html.erb (Duration: 0.4ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_user_util_links.html.erb (Duration: 20.8ms | GC: 0.3ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_header_navbar.html.erb (Duration: 25.5ms | GC: 0.3ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_flash_msg.html.erb within shared/_flash_messages (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_footer.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_modal.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb (Duration: 42.7ms | GC: 1.0ms)
+  Rendered layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb (Duration: 53.8ms | GC: 1.3ms)
+Completed 200 OK in 88ms (Views: 49.3ms | ActiveRecord: 5.0ms (2 queries, 0 cached) | GC: 6.0ms)
+
+
+Started GET "/catalog/opensearch.xml" for 162.158.186.39 at 2026-11-17 22:07:07 +0000
+Cannot render console from 162.158.186.39! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by CatalogController#opensearch as XML
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/opensearch.xml.builder
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/opensearch.xml.builder (Duration: 2.2ms | GC: 0.0ms)
+Completed 200 OK in 13ms (Views: 2.6ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/catalog?f%5Bschema_provider_s%5D%5B%5D=San+Francisco+Estuary+Institute+%28SFEI%29" for 162.158.186.39 at 2026-11-17 22:07:09 +0000
+Cannot render console from 162.158.186.39! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by CatalogController#index as HTML
+  Parameters: {"f"=>{"schema_provider_s"=>["San Francisco Estuary Institute (SFEI)"]}}
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[36mSearch Create (1.9ms)[0m  [1m[32mINSERT INTO "searches" ("query_params", "user_id", "user_type", "created_at", "updated_at") VALUES (?, ?, ?, ?, ?) RETURNING "id"[0m  [["query_params", "<105 bytes of binary data>"], ["user_id", nil], ["user_type", nil], ["created_at", "2026-11-17 22:07:09.084031"], ["updated_at", "2026-11-17 22:07:09.084031"]]
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mcommit transaction[0m
+Solr query: get select {"qt"=>nil, "start"=>0, "q.alt"=>"*:*", "fq"=>["{!term f=schema_provider_s}San Francisco Estuary Institute (SFEI)", "-gbl_suppressed_b: true"], "facet"=>true, "facet.field"=>["gbl_indexYear_im", "dct_spatial_sm", "dct_accessRights_s", "gbl_resourceClass_sm", "gbl_resourceType_sm", "dct_format_s", "dct_subject_sm", "dcat_theme_sm", "dct_creator_sm", "dct_publisher_sm", "schema_provider_s", "gbl_georeferenced_b", "locn_geometry", "pcdm_memberOf_sm", "dct_isPartOf_sm", "dct_relation_sm", "dct_replaces_sm", "dct_isReplacedBy_sm", "dct_source_sm", "dct_isVersionOf_sm"], "f.gbl_indexYear_im.facet.limit"=>11, "f.dct_spatial_sm.facet.limit"=>9, "f.dct_accessRights_s.facet.limit"=>9, "f.gbl_resourceClass_sm.facet.limit"=>9, "f.gbl_resourceType_sm.facet.limit"=>9, "f.dct_format_s.facet.limit"=>9, "f.dct_subject_sm.facet.limit"=>9, "f.dcat_theme_sm.facet.limit"=>9, "f.dct_creator_sm.facet.limit"=>9, "f.dct_publisher_sm.facet.limit"=>9, "f.schema_provider_s.facet.limit"=>9, "f.gbl_georeferenced_b.facet.limit"=>4, "rows"=>10, "sort"=>"score desc, dct_title_sort asc"}
+Solr fetch (13.4ms)
+  Rendering layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_opensearch_response_metadata.html.erb (Duration: 0.4ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_search_results_header.html.erb (Duration: 0.4ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_constraints.html.erb (Duration: 13.7ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_did_you_mean.html.erb (Duration: 3.6ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_paginate_compact.html.erb (Duration: 19.2ms | GC: 9.7ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_sort_widget.html.erb (Duration: 10.2ms | GC: 1.4ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_per_page_widget.html.erb (Duration: 6.2ms | GC: 1.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_sort_and_per_page.html.erb (Duration: 49.2ms | GC: 13.3ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_search_header.html.erb (Duration: 57.6ms | GC: 13.3ms)
+Looking for document index partial document_split
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_results_pagination.html.erb (Duration: 8.9ms | GC: 0.3ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_search_results.html.erb (Duration: 257.8ms | GC: 20.7ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight (Duration: 315.2ms | GC: 20.7ms)
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb
+  [1m[36mUser Load (0.2ms)[0m  [1m[34mSELECT "users".* FROM "users" WHERE "users"."email" = ? LIMIT ?[0m  [["email", "[FILTERED]"], ["LIMIT", 1]]
+  [1m[36mBookmark Count (0.2ms)[0m  [1m[34mSELECT COUNT(*) FROM "bookmarks" WHERE "bookmarks"."user_id" = ? AND "bookmarks"."user_type" = ?[0m  [["user_id", 4], ["user_type", "User"]]
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_bookmark.html.erb (Duration: 3.6ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_search_history.html.erb (Duration: 0.3ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_user_util_links.html.erb (Duration: 8.5ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_header_navbar.html.erb (Duration: 11.4ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_flash_msg.html.erb within shared/_flash_messages (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_footer.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_modal.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb (Duration: 21.7ms | GC: 0.0ms)
+  Rendered layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb (Duration: 338.1ms | GC: 20.7ms)
+Completed 200 OK in 393ms (Views: 338.3ms | ActiveRecord: 2.8ms (3 queries, 0 cached) | GC: 20.7ms)
+
+
+Started GET "/catalog?f%5Bschema_provider_s%5D%5B%5D=San+Francisco+Estuary+Institute+%28SFEI%29" for 104.22.193.160 at 2026-11-17 22:07:15 +0000
+Cannot render console from 104.22.193.160! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by CatalogController#index as HTML
+  Parameters: {"f"=>{"schema_provider_s"=>["San Francisco Estuary Institute (SFEI)"]}}
+  [1m[36mTRANSACTION (0.1ms)[0m  [1m[36mbegin transaction[0m
+  [1m[36mSearch Create (1.7ms)[0m  [1m[32mINSERT INTO "searches" ("query_params", "user_id", "user_type", "created_at", "updated_at") VALUES (?, ?, ?, ?, ?) RETURNING "id"[0m  [["query_params", "<105 bytes of binary data>"], ["user_id", nil], ["user_type", nil], ["created_at", "2026-11-17 22:07:15.963578"], ["updated_at", "2026-11-17 22:07:15.963578"]]
+  [1m[36mTRANSACTION (0.2ms)[0m  [1m[36mcommit transaction[0m
+Solr query: get select {"qt"=>nil, "start"=>0, "q.alt"=>"*:*", "fq"=>["{!term f=schema_provider_s}San Francisco Estuary Institute (SFEI)", "-gbl_suppressed_b: true"], "facet"=>true, "facet.field"=>["gbl_indexYear_im", "dct_spatial_sm", "dct_accessRights_s", "gbl_resourceClass_sm", "gbl_resourceType_sm", "dct_format_s", "dct_subject_sm", "dcat_theme_sm", "dct_creator_sm", "dct_publisher_sm", "schema_provider_s", "gbl_georeferenced_b", "locn_geometry", "pcdm_memberOf_sm", "dct_isPartOf_sm", "dct_relation_sm", "dct_replaces_sm", "dct_isReplacedBy_sm", "dct_source_sm", "dct_isVersionOf_sm"], "f.gbl_indexYear_im.facet.limit"=>11, "f.dct_spatial_sm.facet.limit"=>9, "f.dct_accessRights_s.facet.limit"=>9, "f.gbl_resourceClass_sm.facet.limit"=>9, "f.gbl_resourceType_sm.facet.limit"=>9, "f.dct_format_s.facet.limit"=>9, "f.dct_subject_sm.facet.limit"=>9, "f.dcat_theme_sm.facet.limit"=>9, "f.dct_creator_sm.facet.limit"=>9, "f.dct_publisher_sm.facet.limit"=>9, "f.schema_provider_s.facet.limit"=>9, "f.gbl_georeferenced_b.facet.limit"=>4, "rows"=>10, "sort"=>"score desc, dct_title_sort asc"}
+Solr fetch (10.9ms)
+  Rendering layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_opensearch_response_metadata.html.erb (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_search_results_header.html.erb (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_constraints.html.erb (Duration: 2.9ms | GC: 1.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_did_you_mean.html.erb (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_paginate_compact.html.erb (Duration: 1.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_sort_widget.html.erb (Duration: 3.4ms | GC: 1.1ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_per_page_widget.html.erb (Duration: 1.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_sort_and_per_page.html.erb (Duration: 6.6ms | GC: 1.1ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_search_header.html.erb (Duration: 7.1ms | GC: 1.1ms)
+Looking for document index partial document_split
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_results_pagination.html.erb (Duration: 2.3ms | GC: 0.3ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_search_results.html.erb (Duration: 51.4ms | GC: 6.6ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight (Duration: 93.7ms | GC: 24.2ms)
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb
+  [1m[36mUser Load (0.1ms)[0m  [1m[34mSELECT "users".* FROM "users" WHERE "users"."email" = ? LIMIT ?[0m  [["email", "[FILTERED]"], ["LIMIT", 1]]
+  [1m[36mBookmark Count (0.2ms)[0m  [1m[34mSELECT COUNT(*) FROM "bookmarks" WHERE "bookmarks"."user_id" = ? AND "bookmarks"."user_type" = ?[0m  [["user_id", 3], ["user_type", "User"]]
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_bookmark.html.erb (Duration: 3.6ms | GC: 0.2ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_search_history.html.erb (Duration: 0.3ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_user_util_links.html.erb (Duration: 7.7ms | GC: 0.5ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_header_navbar.html.erb (Duration: 10.5ms | GC: 0.5ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_flash_msg.html.erb within shared/_flash_messages (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_footer.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_modal.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb (Duration: 21.5ms | GC: 1.2ms)
+  Rendered layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb (Duration: 115.9ms | GC: 25.4ms)
+Completed 200 OK in 148ms (Views: 116.0ms | ActiveRecord: 2.2ms (3 queries, 0 cached) | GC: 25.4ms)
+
+
+Started GET "/?f%5Bschema_provider_s%5D%5B%5D=San+Francisco+Estuary+Institute+%28SFEI%29&page=2" for 104.22.193.160 at 2026-11-17 22:07:20 +0000
+Cannot render console from 104.22.193.160! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by CatalogController#index as HTML
+  Parameters: {"f"=>{"schema_provider_s"=>["San Francisco Estuary Institute (SFEI)"]}, "page"=>"2"}
+  [1m[36mSearch Load (0.2ms)[0m  [1m[34mSELECT "searches".* FROM "searches" WHERE "searches"."id" = ? ORDER BY "searches"."updated_at" DESC[0m  [["id", 2]]
+Solr query: get select {"qt"=>nil, "start"=>10, "q.alt"=>"*:*", "fq"=>["{!term f=schema_provider_s}San Francisco Estuary Institute (SFEI)", "-gbl_suppressed_b: true"], "facet"=>true, "facet.field"=>["gbl_indexYear_im", "dct_spatial_sm", "dct_accessRights_s", "gbl_resourceClass_sm", "gbl_resourceType_sm", "dct_format_s", "dct_subject_sm", "dcat_theme_sm", "dct_creator_sm", "dct_publisher_sm", "schema_provider_s", "gbl_georeferenced_b", "locn_geometry", "pcdm_memberOf_sm", "dct_isPartOf_sm", "dct_relation_sm", "dct_replaces_sm", "dct_isReplacedBy_sm", "dct_source_sm", "dct_isVersionOf_sm"], "f.gbl_indexYear_im.facet.limit"=>11, "f.dct_spatial_sm.facet.limit"=>9, "f.dct_accessRights_s.facet.limit"=>9, "f.gbl_resourceClass_sm.facet.limit"=>9, "f.gbl_resourceType_sm.facet.limit"=>9, "f.dct_format_s.facet.limit"=>9, "f.dct_subject_sm.facet.limit"=>9, "f.dcat_theme_sm.facet.limit"=>9, "f.dct_creator_sm.facet.limit"=>9, "f.dct_publisher_sm.facet.limit"=>9, "f.schema_provider_s.facet.limit"=>9, "f.gbl_georeferenced_b.facet.limit"=>4, "rows"=>10, "sort"=>"score desc, dct_title_sort asc"}
+Solr fetch (7.9ms)
+  Rendering layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_opensearch_response_metadata.html.erb (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_search_results_header.html.erb (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_constraints.html.erb (Duration: 1.9ms | GC: 0.4ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_did_you_mean.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_paginate_compact.html.erb (Duration: 1.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_sort_widget.html.erb (Duration: 2.3ms | GC: 0.4ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_per_page_widget.html.erb (Duration: 1.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_sort_and_per_page.html.erb (Duration: 5.3ms | GC: 0.4ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_search_header.html.erb (Duration: 5.7ms | GC: 0.4ms)
+Looking for document index partial document_split
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_results_pagination.html.erb (Duration: 1.5ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_search_results.html.erb (Duration: 19.4ms | GC: 1.6ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight (Duration: 66.3ms | GC: 22.6ms)
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb
+  [1m[36mUser Load (0.1ms)[0m  [1m[34mSELECT "users".* FROM "users" WHERE "users"."email" = ? LIMIT ?[0m  [["email", "[FILTERED]"], ["LIMIT", 1]]
+  [1m[36mBookmark Count (0.2ms)[0m  [1m[34mSELECT COUNT(*) FROM "bookmarks" WHERE "bookmarks"."user_id" = ? AND "bookmarks"."user_type" = ?[0m  [["user_id", 3], ["user_type", "User"]]
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_bookmark.html.erb (Duration: 3.5ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_search_history.html.erb (Duration: 0.3ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_user_util_links.html.erb (Duration: 7.6ms | GC: 0.3ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_header_navbar.html.erb (Duration: 10.4ms | GC: 0.3ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_flash_msg.html.erb within shared/_flash_messages (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_footer.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_modal.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb (Duration: 20.9ms | GC: 0.8ms)
+  Rendered layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb (Duration: 87.9ms | GC: 23.4ms)
+Completed 200 OK in 112ms (Views: 88.1ms | ActiveRecord: 0.4ms (3 queries, 0 cached) | GC: 23.4ms)
+
+
+Started GET "/?f%5Bschema_provider_s%5D%5B%5D=San+Francisco+Estuary+Institute+%28SFEI%29" for 104.22.193.160 at 2026-11-17 22:07:21 +0000
+Cannot render console from 104.22.193.160! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by CatalogController#index as HTML
+  Parameters: {"f"=>{"schema_provider_s"=>["San Francisco Estuary Institute (SFEI)"]}}
+  [1m[36mSearch Load (0.1ms)[0m  [1m[34mSELECT "searches".* FROM "searches" WHERE "searches"."id" = ? ORDER BY "searches"."updated_at" DESC[0m  [["id", 2]]
+Solr query: get select {"qt"=>nil, "start"=>0, "q.alt"=>"*:*", "fq"=>["{!term f=schema_provider_s}San Francisco Estuary Institute (SFEI)", "-gbl_suppressed_b: true"], "facet"=>true, "facet.field"=>["gbl_indexYear_im", "dct_spatial_sm", "dct_accessRights_s", "gbl_resourceClass_sm", "gbl_resourceType_sm", "dct_format_s", "dct_subject_sm", "dcat_theme_sm", "dct_creator_sm", "dct_publisher_sm", "schema_provider_s", "gbl_georeferenced_b", "locn_geometry", "pcdm_memberOf_sm", "dct_isPartOf_sm", "dct_relation_sm", "dct_replaces_sm", "dct_isReplacedBy_sm", "dct_source_sm", "dct_isVersionOf_sm"], "f.gbl_indexYear_im.facet.limit"=>11, "f.dct_spatial_sm.facet.limit"=>9, "f.dct_accessRights_s.facet.limit"=>9, "f.gbl_resourceClass_sm.facet.limit"=>9, "f.gbl_resourceType_sm.facet.limit"=>9, "f.dct_format_s.facet.limit"=>9, "f.dct_subject_sm.facet.limit"=>9, "f.dcat_theme_sm.facet.limit"=>9, "f.dct_creator_sm.facet.limit"=>9, "f.dct_publisher_sm.facet.limit"=>9, "f.schema_provider_s.facet.limit"=>9, "f.gbl_georeferenced_b.facet.limit"=>4, "rows"=>10, "sort"=>"score desc, dct_title_sort asc"}
+Solr fetch (18.9ms)
+  Rendering layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_opensearch_response_metadata.html.erb (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_search_results_header.html.erb (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_constraints.html.erb (Duration: 3.2ms | GC: 1.2ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_did_you_mean.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_paginate_compact.html.erb (Duration: 1.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_sort_widget.html.erb (Duration: 2.9ms | GC: 0.9ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_per_page_widget.html.erb (Duration: 1.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_sort_and_per_page.html.erb (Duration: 5.8ms | GC: 0.9ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_search_header.html.erb (Duration: 6.3ms | GC: 0.9ms)
+Looking for document index partial document_split
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_results_pagination.html.erb (Duration: 1.7ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_search_results.html.erb (Duration: 47.9ms | GC: 6.1ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight (Duration: 99.8ms | GC: 32.7ms)
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb
+  [1m[36mUser Load (0.1ms)[0m  [1m[34mSELECT "users".* FROM "users" WHERE "users"."email" = ? LIMIT ?[0m  [["email", "[FILTERED]"], ["LIMIT", 1]]
+  [1m[36mBookmark Count (0.2ms)[0m  [1m[34mSELECT COUNT(*) FROM "bookmarks" WHERE "bookmarks"."user_id" = ? AND "bookmarks"."user_type" = ?[0m  [["user_id", 3], ["user_type", "User"]]
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_bookmark.html.erb (Duration: 3.9ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_search_history.html.erb (Duration: 0.3ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_user_util_links.html.erb (Duration: 9.4ms | GC: 1.7ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_header_navbar.html.erb (Duration: 11.9ms | GC: 1.7ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_flash_msg.html.erb within shared/_flash_messages (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_footer.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_modal.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb (Duration: 22.7ms | GC: 2.4ms)
+  Rendered layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb (Duration: 123.2ms | GC: 35.1ms)
+Completed 200 OK in 206ms (Views: 123.3ms | ActiveRecord: 0.3ms (3 queries, 0 cached) | GC: 86.6ms)
+
+
+Started GET "/?f%5Bschema_provider_s%5D%5B%5D=San+Francisco+Estuary+Institute+%28SFEI%29" for 104.22.193.160 at 2026-11-17 22:07:22 +0000
+Cannot render console from 104.22.193.160! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by CatalogController#index as HTML
+  Parameters: {"f"=>{"schema_provider_s"=>["San Francisco Estuary Institute (SFEI)"]}}
+  [1m[36mSearch Load (0.1ms)[0m  [1m[34mSELECT "searches".* FROM "searches" WHERE "searches"."id" = ? ORDER BY "searches"."updated_at" DESC[0m  [["id", 2]]
+Solr query: get select {"qt"=>nil, "start"=>0, "q.alt"=>"*:*", "fq"=>["{!term f=schema_provider_s}San Francisco Estuary Institute (SFEI)", "-gbl_suppressed_b: true"], "facet"=>true, "facet.field"=>["gbl_indexYear_im", "dct_spatial_sm", "dct_accessRights_s", "gbl_resourceClass_sm", "gbl_resourceType_sm", "dct_format_s", "dct_subject_sm", "dcat_theme_sm", "dct_creator_sm", "dct_publisher_sm", "schema_provider_s", "gbl_georeferenced_b", "locn_geometry", "pcdm_memberOf_sm", "dct_isPartOf_sm", "dct_relation_sm", "dct_replaces_sm", "dct_isReplacedBy_sm", "dct_source_sm", "dct_isVersionOf_sm"], "f.gbl_indexYear_im.facet.limit"=>11, "f.dct_spatial_sm.facet.limit"=>9, "f.dct_accessRights_s.facet.limit"=>9, "f.gbl_resourceClass_sm.facet.limit"=>9, "f.gbl_resourceType_sm.facet.limit"=>9, "f.dct_format_s.facet.limit"=>9, "f.dct_subject_sm.facet.limit"=>9, "f.dcat_theme_sm.facet.limit"=>9, "f.dct_creator_sm.facet.limit"=>9, "f.dct_publisher_sm.facet.limit"=>9, "f.schema_provider_s.facet.limit"=>9, "f.gbl_georeferenced_b.facet.limit"=>4, "rows"=>10, "sort"=>"score desc, dct_title_sort asc"}
+Solr fetch (10.5ms)
+  Rendering layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_opensearch_response_metadata.html.erb (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_search_results_header.html.erb (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_constraints.html.erb (Duration: 1.4ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_did_you_mean.html.erb (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_paginate_compact.html.erb (Duration: 1.2ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_sort_widget.html.erb (Duration: 3.0ms | GC: 0.9ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_per_page_widget.html.erb (Duration: 1.3ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_sort_and_per_page.html.erb (Duration: 6.5ms | GC: 0.9ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_search_header.html.erb (Duration: 7.1ms | GC: 0.9ms)
+Looking for document index partial document_split
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+DEPRECATION WARNING: snippit is deprecated and will be removed from GeoBlacklight 6.0 (GeoBlacklight 6 removes it; its catalog_controller template no longer configures a truncated description index field) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_results_pagination.html.erb (Duration: 1.7ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_search_results.html.erb (Duration: 63.7ms | GC: 19.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/index.html.erb within layouts/blacklight (Duration: 86.0ms | GC: 19.0ms)
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb
+  [1m[36mUser Load (0.1ms)[0m  [1m[34mSELECT "users".* FROM "users" WHERE "users"."email" = ? LIMIT ?[0m  [["email", "[FILTERED]"], ["LIMIT", 1]]
+  [1m[36mBookmark Count (0.2ms)[0m  [1m[34mSELECT COUNT(*) FROM "bookmarks" WHERE "bookmarks"."user_id" = ? AND "bookmarks"."user_type" = ?[0m  [["user_id", 3], ["user_type", "User"]]
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_bookmark.html.erb (Duration: 3.6ms | GC: 0.3ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_search_history.html.erb (Duration: 0.3ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_user_util_links.html.erb (Duration: 7.2ms | GC: 0.3ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_header_navbar.html.erb (Duration: 9.9ms | GC: 0.3ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_flash_msg.html.erb within shared/_flash_messages (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_footer.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_modal.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb (Duration: 20.6ms | GC: 1.1ms)
+  Rendered layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb (Duration: 107.2ms | GC: 20.1ms)
+Completed 200 OK in 135ms (Views: 107.3ms | ActiveRecord: 0.3ms (3 queries, 0 cached) | GC: 20.1ms)
+
+
+Started GET "/bookmarks" for 104.22.193.160 at 2026-11-17 22:24:23 +0000
+Cannot render console from 104.22.193.160! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Started POST "/catalog/sfei-california-aquatic-resource-inventory/track?counter=4&document_id=sfei-california-aquatic-resource-inventory&search_id=2" for 104.22.193.160 at 2026-11-17 22:24:23 +0000
+Cannot render console from 104.22.193.160! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by BookmarksController#index as HTML
+  [1m[36mUser Load (0.8ms)[0m  [1m[34mSELECT "users".* FROM "users" WHERE "users"."email" = ? LIMIT ?[0m  [["email", "[FILTERED]"], ["LIMIT", 1]]
+  [1m[36mBookmark Load (0.2ms)[0m  [1m[34mSELECT "bookmarks".* FROM "bookmarks" WHERE "bookmarks"."user_id" = ? AND "bookmarks"."user_type" = ?[0m  [["user_id", 3], ["user_type", "User"]]
+Processing by CatalogController#track as TURBO_STREAM
+  Parameters: {"redirect"=>"/catalog/sfei-california-aquatic-resource-inventory", "authenticity_token"=>"[FILTERED]", "counter"=>"4", "document_id"=>"sfei-california-aquatic-resource-inventory", "search_id"=>"2", "id"=>"sfei-california-aquatic-resource-inventory"}
+Redirected to https://datagb-dev.sfei.org/catalog/sfei-california-aquatic-resource-inventory
+Completed 303 See Other in 21ms (ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 3.6ms)
+
+
+Solr query: post select {"qt"=>nil, "start"=>0, "q.alt"=>"*:*", "facet"=>true, "facet.field"=>["gbl_indexYear_im", "dct_spatial_sm", "dct_accessRights_s", "gbl_resourceClass_sm", "gbl_resourceType_sm", "dct_format_s", "dct_subject_sm", "dcat_theme_sm", "dct_creator_sm", "dct_publisher_sm", "schema_provider_s", "gbl_georeferenced_b", "locn_geometry", "pcdm_memberOf_sm", "dct_isPartOf_sm", "dct_relation_sm", "dct_replaces_sm", "dct_isReplacedBy_sm", "dct_source_sm", "dct_isVersionOf_sm"], "f.gbl_indexYear_im.facet.limit"=>11, "f.dct_spatial_sm.facet.limit"=>9, "f.dct_accessRights_s.facet.limit"=>9, "f.gbl_resourceClass_sm.facet.limit"=>9, "f.gbl_resourceType_sm.facet.limit"=>9, "f.dct_format_s.facet.limit"=>9, "f.dct_subject_sm.facet.limit"=>9, "f.dcat_theme_sm.facet.limit"=>9, "f.dct_creator_sm.facet.limit"=>9, "f.dct_publisher_sm.facet.limit"=>9, "f.schema_provider_s.facet.limit"=>9, "f.gbl_georeferenced_b.facet.limit"=>4, "rows"=>10, "sort"=>"score desc, dct_title_sort asc", "fq"=>["-gbl_suppressed_b: true", "{!terms f=id}"]}
+Solr fetch (32.8ms)
+  Rendering layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/bookmarks/index.html.erb within layouts/blacklight
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/bookmarks/index.html.erb within layouts/blacklight (Duration: 1.2ms | GC: 0.0ms)
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb
+  [1m[36mBookmark Count (0.2ms)[0m  [1m[34mSELECT COUNT(*) FROM "bookmarks" WHERE "bookmarks"."user_id" = ? AND "bookmarks"."user_type" = ?[0m  [["user_id", 3], ["user_type", "User"]]
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_bookmark.html.erb (Duration: 3.2ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_search_history.html.erb (Duration: 0.3ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_user_util_links.html.erb (Duration: 4.2ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_header_navbar.html.erb (Duration: 7.3ms | GC: 0.2ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_flash_msg.html.erb within shared/_flash_messages (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_footer.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_modal.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb (Duration: 18.3ms | GC: 0.8ms)
+  Rendered layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight.html.erb (Duration: 19.9ms | GC: 0.8ms)
+Completed 200 OK in 94ms (Views: 20.9ms | ActiveRecord: 1.1ms (3 queries, 0 cached) | GC: 19.8ms)
+
+
+Started GET "/catalog/sfei-california-aquatic-resource-inventory" for 104.22.193.160 at 2026-11-17 22:24:23 +0000
+Cannot render console from 104.22.193.160! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by CatalogController#show as TURBO_STREAM
+  Parameters: {"id"=>"sfei-california-aquatic-resource-inventory"}
+Solr query: get get {:qt=>"document", :q=>"{!raw f=id v=$id}", :ids=>"sfei-california-aquatic-resource-inventory"}
+Solr fetch (5.9ms)
+  [1m[36mSearch Load (0.3ms)[0m  [1m[34mSELECT "searches".* FROM "searches" WHERE "searches"."id" = ? AND "searches"."id" = ? ORDER BY "searches"."updated_at" DESC LIMIT ?[0m  [["id", 2], ["id", 2], ["LIMIT", 1]]
+Solr query: get select {"qt"=>nil, "start"=>2, "q.alt"=>"*:*", "fq"=>["{!term f=schema_provider_s}San Francisco Estuary Institute (SFEI)", "-gbl_suppressed_b: true"], "facet"=>false, "facet.field"=>["gbl_indexYear_im", "dct_spatial_sm", "dct_accessRights_s", "gbl_resourceClass_sm", "gbl_resourceType_sm", "dct_format_s", "dct_subject_sm", "dcat_theme_sm", "dct_creator_sm", "dct_publisher_sm", "schema_provider_s", "gbl_georeferenced_b", "locn_geometry", "pcdm_memberOf_sm", "dct_isPartOf_sm", "dct_relation_sm", "dct_replaces_sm", "dct_isReplacedBy_sm", "dct_source_sm", "dct_isVersionOf_sm"], "f.gbl_indexYear_im.facet.limit"=>11, "f.dct_spatial_sm.facet.limit"=>9, "f.dct_accessRights_s.facet.limit"=>9, "f.gbl_resourceClass_sm.facet.limit"=>9, "f.gbl_resourceType_sm.facet.limit"=>9, "f.dct_format_s.facet.limit"=>9, "f.dct_subject_sm.facet.limit"=>9, "f.dcat_theme_sm.facet.limit"=>9, "f.dct_creator_sm.facet.limit"=>9, "f.dct_publisher_sm.facet.limit"=>9, "f.schema_provider_s.facet.limit"=>9, "f.gbl_georeferenced_b.facet.limit"=>4, "rows"=>3, "sort"=>"score desc, dct_title_sort asc", "fl"=>"id"}
+Solr fetch (5.6ms)
+  Rendering layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/catalog_result.html.erb
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/show.html.erb within layouts/catalog_result
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_start_over.html.erb (Duration: 1.0ms | GC: 0.0ms)
+DEPRECATION WARNING: render_value_as_truncate_abstract is deprecated and will be removed from GeoBlacklight 6.0 (use Geoblacklight::MetadataDescriptionMarkdownComponent instead) (called from render_helper at /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/presenters/blacklight/rendering/helper_method.rb:17)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_show_main_content.html.erb (Duration: 55.8ms | GC: 0.0ms)
+  [1m[36mUser Load (0.1ms)[0m  [1m[34mSELECT "users".* FROM "users" WHERE "users"."email" = ? LIMIT ?[0m  [["email", "[FILTERED]"], ["LIMIT", 1]]
+  [1m[36mBookmark Load (0.2ms)[0m  [1m[34mSELECT "bookmarks".* FROM "bookmarks" WHERE "bookmarks"."user_id" = ? AND "bookmarks"."user_type" = ? AND "bookmarks"."document_type" = ? AND "bookmarks"."document_id" = ?[0m  [["user_id", 3], ["user_type", "User"], ["document_type", "SolrDocument"], ["document_id", "sfei-california-aquatic-resource-inventory"]]
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_bookmark_control.html.erb (Duration: 7.2ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_show_tools.html.erb (Duration: 15.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/catalog/_relations_container.html.erb (Duration: 0.4ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/_show_sidebar.html.erb (Duration: 30.3ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/catalog/show.html.erb within layouts/catalog_result (Duration: 87.6ms | GC: 0.0ms)
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb
+  [1m[36mBookmark Count (0.2ms)[0m  [1m[34mSELECT COUNT(*) FROM "bookmarks" WHERE "bookmarks"."user_id" = ? AND "bookmarks"."user_type" = ?[0m  [["user_id", 3], ["user_type", "User"]]
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_bookmark.html.erb (Duration: 3.2ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/blacklight/nav/_search_history.html.erb (Duration: 0.3ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_user_util_links.html.erb (Duration: 4.3ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_header_navbar.html.erb (Duration: 7.4ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_flash_msg.html.erb within shared/_flash_messages (Duration: 0.1ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_footer.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/shared/_modal.html.erb (Duration: 0.0ms | GC: 0.0ms)
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/blacklight/base.html.erb (Duration: 17.7ms | GC: 0.0ms)
+  Rendered layout /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/blacklight-8.13.0/app/views/layouts/catalog_result.html.erb (Duration: 106.1ms | GC: 0.0ms)
+Completed 200 OK in 137ms (Views: 106.2ms | ActiveRecord: 0.7ms (4 queries, 0 cached) | GC: 0.0ms)
+
+
+Started GET "/catalog/sfei-california-aquatic-resource-inventory/relations" for 104.22.193.160 at 2026-11-17 22:24:24 +0000
+Cannot render console from 104.22.193.160! Allowed networks: 127.0.0.0/127.255.255.255, ::1
+Processing by RelationController#index as */*
+  Parameters: {"id"=>"sfei-california-aquatic-resource-inventory"}
+  Rendering /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/relation/index.html.erb
+  Rendered /home/geoblacklight/.rbenv/versions/3.3.6/lib/ruby/gems/3.3.0/gems/geoblacklight-5.4.0/app/views/relation/index.html.erb (Duration: 92.6ms | GC: 24.3ms)
+Completed 200 OK in 106ms (Views: 94.0ms | ActiveRecord: 0.0ms (0 queries, 0 cached) | GC: 24.3ms)
+
+

@@ -1,1 +1,1 @@
-Rails.application.config.hosts << "datagb.sfei.org"
+Rails.application.config.hosts << "datagb-dev.sfei.org"
