@@ -10,9 +10,9 @@ namespace :sfei do
         next unless sidecar.image.attached?
 
         # List page square variant (300x300 for retina clarity)
-        sidecar.image.variant(resize_to_fit: [300, 300]).processed
+        sidecar.image.variant(resize_to_fit: [ 300, 300 ]).processed
         # Detail page sidebar variant
-        sidecar.image.variant(resize_to_fit: [400, 400]).processed
+        sidecar.image.variant(resize_to_fit: [ 400, 400 ]).processed
         count += 1
         print "."
       end

@@ -31,15 +31,15 @@ Rails.application.config.to_prepare do
 
   # Automatically pre-warm and cache thumbnail variants whenever an image is attached/harvested
   SolrDocumentSidecar.class_eval do
-    after_commit :prewarm_variants, on: [:create, :update]
+    after_commit :prewarm_variants, on: [ :create, :update ]
 
     def prewarm_variants
       return unless image.attached?
 
       # Pre-generate list page square thumbnail (300x300 for retina clarity)
-      image.variant(resize_to_fit: [300, 300]).processed
+      image.variant(resize_to_fit: [ 300, 300 ]).processed
       # Pre-generate detail page sidebar thumbnail
-      image.variant(resize_to_fit: [400, 400]).processed
+      image.variant(resize_to_fit: [ 400, 400 ]).processed
     rescue StandardError => e
       Rails.logger.warn("Failed to prewarm image variants for #{document_id}: #{e.message}")
     end
