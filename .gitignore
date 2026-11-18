@@ -31,5 +31,16 @@
 
 /public/assets
 
+# Ignore synced thumbnail images (keep directory)
+/public/thumbnails/*
+!/public/thumbnails/.keep
+
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+.DS_Store
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/

@@ -328,3 +328,12 @@ ICON_MAPPING:
   penn-state: pennsylvania-state-university
   purdue: purdue-university
   wisconsin: university-of-wisconsin-madison
+
+# GeoBlacklight Sidecar Images
+INSTITUTION_LOCAL_NAME: ''
+INSTITUTION_GEOSERVER_URL: ''
+PROXY_GEOSERVER_URL: ''
+PROXY_GEOSERVER_AUTH: 'Basic base64encodedusername:password'
+GBLSI_THUMBNAIL_FIELD: 'sfei_image_name_s'
+# Optional: https://ogm.geo4lib.app/api/v1 (leave blank to harvest locally)
+GBLSI_OGM_API_URL: ''

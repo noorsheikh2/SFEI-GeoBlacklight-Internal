@@ -14,3 +14,32 @@
  *= require_self
  *= require blacklight
  */
+
+@import 'geoblacklight_sidecar_images/gblsci';
+
+/* Ensure search result list page thumbnails are strictly square */
+.document-thumbnail {
+  width: 150px;
+  height: 150px;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.document-thumbnail a {
+  display: block;
+  width: 150px;
+  height: 150px;
+}
+
+.document-thumbnail img {
+  width: 150px !important;
+  height: 150px !important;
+  max-width: 150px !important;
+  max-height: 150px !important;
+  object-fit: cover !important;
+}
+
+.documentHeader {
+  min-width: 0;
+}
+
