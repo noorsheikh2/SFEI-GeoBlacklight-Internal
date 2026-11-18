@@ -15,7 +15,7 @@
  *= require blacklight
  */
 
-@import 'geoblacklight_sidecar_images/gblsci';
+
 
 /* Ensure search result list page thumbnails are strictly square */
 .document-thumbnail {
