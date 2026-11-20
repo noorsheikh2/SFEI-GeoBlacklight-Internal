@@ -1,4 +1,4 @@
-<%# Custom SearchResultComponent supporting geoblacklight_sidecar_images %>
+<%# Custom SearchResultComponent supporting geoblacklight_sidecar_images and multiple images %>
 <%= content_tag @component,
   id: @id,
   data: {
@@ -12,10 +12,22 @@
   class: classes.flatten.join(' ') do %>
 
   <div class="d-flex flex-row align-items-start my-2">
-    <% if @document.respond_to?(:sidecar) && @document.sidecar&.image&.attached? %>
-      <div class="document-thumbnail me-3 flex-shrink-0" style="width: 150px; height: 150px;">
-        <%= helpers.link_to helpers.solr_document_path(@document), class: "d-block text-decoration-none", style: "width: 150px; height: 150px;", title: @document.title do %>
-          <%= helpers.sidecar_thumbnail_tag(@document, size: [300, 300], class: "img-fluid img-thumbnail rounded shadow-sm", style: "width: 150px !important; height: 150px !important; object-fit: cover !important;") %>
+    <% sidecar = @document.respond_to?(:sidecar) ? @document.sidecar : nil %>
+    <% primary = sidecar&.primary_image %>
+    <% all_imgs = sidecar&.all_images || [] %>
+    <% if primary.present? %>
+      <div class="document-thumbnail me-3 flex-shrink-0 position-relative" style="width: 150px; height: 150px;">
+        <%= helpers.link_to helpers.solr_document_path(@document), class: "d-block text-decoration-none position-relative", style: "width: 150px; height: 150px;", title: @document.title do %>
+          <%= helpers.image_tag primary.variant(resize_to_fit: [300, 300]), class: "img-fluid img-thumbnail rounded shadow-sm", style: "width: 150px !important; height: 150px !important; object-fit: cover !important;", alt: @document.title %>
+          <% if all_imgs.size > 1 %>
+            <span class="badge bg-dark bg-opacity-75 position-absolute bottom-0 end-0 m-1 px-1 py-0 d-flex align-items-center text-white" style="font-size: 0.72rem;" title="<%= all_imgs.size %> images available">
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" fill="currentColor" class="me-1" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4z"/>
+                <path d="M8 11a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5m0 1a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0"/>
+              </svg>
+              1/<%= all_imgs.size %>
+            </span>
+          <% end %>
         <% end %>
       </div>
     <% else %>

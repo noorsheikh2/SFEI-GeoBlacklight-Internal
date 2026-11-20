@@ -62,7 +62,7 @@ bin/rails db:prepare
 ```
 
 ### 4. (Optional) Ingest Metadata and Sync Images
-To sync live metadata from the SFEI Google Sheet and referenced thumbnail images from Google Drive into Solr and `public/thumbnails/`:
+To sync live metadata from the SFEI Google Sheet and referenced dataset images from Google Drive into Solr and `public/images/`:
 ```bash
 # Dry run first (prints JSON records without modifying Solr):
 python3 scripts/sheet_to_solr.py --dry-run
@@ -70,8 +70,8 @@ python3 scripts/sheet_to_solr.py --dry-run
 # Ingest metadata and sync images:
 python3 scripts/sheet_to_solr.py
 
-# Process & attach sidecar thumbnail images in GeoBlacklight:
-bin/rails gblsci:images:harvest_all
+# Process & attach sidecar dataset images in GeoBlacklight:
+bin/rails sfei:images:harvest_all
 ```
 
 ### 5. Start the Rails Server
@@ -195,13 +195,12 @@ Depending on how the server process is managed:
 ### 6. Ingest Metadata & Harvest Sidecar Images (If Needed)
 To run a manual sync after deployment:
 ```bash
-# Ingest metadata and sync thumbnail images from Google Drive:
+# Ingest metadata and sync dataset images from Google Drive:
 uv run --with gdown python3 scripts/sheet_to_solr.py
 # (or if gdown is installed globally: python3 scripts/sheet_to_solr.py)
 
-# Harvest sidecars and attach images into SQLite:
-bin/rails gblsci:images:harvest_all
-bin/rails gblsci:images:harvest_retry
+# Harvest sidecars and attach all images into Active Storage:
+bin/rails sfei:images:harvest_all
 ```
 
 ---
@@ -263,70 +262,64 @@ podman rm sfei-geoblacklight
 
 ---
 
-## Image Management (Preview & Thumbnail Images)
+## Image Management (Preview & Lightbox Images)
 
-GeoBlacklight displays curated preview and thumbnail images beside search results and on record show pages using the `geoblacklight_sidecar_images` plugin backed by Rails Active Storage.
+GeoBlacklight displays curated preview images beside search results and on record show pages with full lightbox carousel support using Rails Active Storage and the `SolrDocumentSidecar` model.
 
 ### How Images Work in the System
 1. **Source of Truth:** Images are maintained by SFEI staff in the shared Google Drive folder:
    [SFEI Images Folder](https://drive.google.com/drive/folders/17D5TLgcpPV83MimUhCafa9roncOSgHsa).
-2. **Metadata Linkage:** In the [Metadata Upload Doc (Google Sheet)](https://docs.google.com/spreadsheets/d/1Kv6W_hUBSz8dmYAqxvS_J_Y5UWXCgTYoaZSkK5WgYSs), staff provide the exact filename in the **`sfei_image_name_s`** column (e.g. `BHM2020v13.png`).
+2. **Metadata Linkage:** In the [Metadata Upload Doc (Google Sheet)](https://docs.google.com/spreadsheets/d/1Kv6W_hUBSz8dmYAqxvS_J_Y5UWXCgTYoaZSkK5WgYSs), staff provide image filenames across one or more image columns:
+   - `Image Name` (Primary thumbnail)
+   - `Image Name 2`, `Image Name 3`, `Image Name 4`, `Image Name 5`, etc. (Additional carousel images)
 3. **Automated Sync (`scripts/sheet_to_solr.py`):**
-   - Ingestion downloads missing images from Google Drive into `public/thumbnails/`.
-   - Records are indexed into Solr containing `sfei_image_name_s`.
-4. **Sidecar Attachment (`rake gblsci:images:harvest_all`):**
-   - Active Storage attaches local images from `public/thumbnails/` to `SolrDocumentSidecar` records.
-   - Resized thumbnail variants (square list and sidebar previews) are automatically pre-warmed upon attachment.
+   - Ingestion downloads missing images from Google Drive into `public/images/`.
+   - Records are indexed into Solr containing `sfei_image_name_s` (primary image) and `sfei_image_names_sm` (ordered array of all images).
+4. **Sidecar Attachment (`rake sfei:images:harvest_all`):**
+   - Active Storage attaches all local images from `public/images/` to `SolrDocumentSidecar` (`has_many_attached :images`, plus primary attached to `image`).
+   - If image columns on the sheet change, attachments are automatically updated and synced.
+   - Resized variants (square list, sidebar, and lightbox previews) are automatically pre-warmed.
    - Attachments are served via Rails storage proxy routes with long-term HTTP caching.
 
 ### Step-by-Step: Adding New Images
 1. **Upload File:** Upload the graphic file (`.png`, `.jpg`, `.webp`) to the [SFEI Images Google Drive folder](https://drive.google.com/drive/folders/17D5TLgcpPV83MimUhCafa9roncOSgHsa).
-2. **Update Metadata Sheet:** Open the [Metadata Upload Doc](https://docs.google.com/spreadsheets/d/1Kv6W_hUBSz8dmYAqxvS_J_Y5UWXCgTYoaZSkK5WgYSs). In the row corresponding to the dataset, enter the exact filename (including extension, case-sensitive) in the `sfei_image_name_s` column.
+2. **Update Metadata Sheet:** Open the [Metadata Upload Doc](https://docs.google.com/spreadsheets/d/1Kv6W_hUBSz8dmYAqxvS_J_Y5UWXCgTYoaZSkK5WgYSs). In the row corresponding to the dataset, enter the exact filename (including extension, case-sensitive) in `Image Name` (and optional additional images in `Image Name 2`, `Image Name 3`, etc.).
 3. **Wait for Cron Sync or Trigger Manually:**
    ```bash
    python3 scripts/sheet_to_solr.py
-   bin/rails gblsci:images:harvest_all
+   bin/rails sfei:images:harvest_all
    ```
 
 ### Critical Image Update Policy: Immutability Rule
 > **IMPORTANT:** Always use a **new filename** when updating or replacing an existing image (e.g., `wetlands_map_v2.png` instead of `wetlands_map.png`).
 > 
 > *Why?*
-> 1. **Drive Sync Caching:** The sync script skips files that already exist on disk in `public/thumbnails/` to avoid redundant re-downloads.
-> 2. **Active Storage & Browser Caching:** `geoblacklight_sidecar_images` tracks attachment state in the database and caches files permanently. If a file retains the same filename, neither Rails Active Storage nor client browser caches will re-fetch the new content.
+> 1. **Drive Sync Caching:** The sync script skips files that already exist on disk in `public/images/` to avoid redundant re-downloads.
+> 2. **Active Storage & Browser Caching:** Active Storage tracks attachment state in the database and caches files permanently. If a file retains the same filename, neither Rails Active Storage nor client browser caches will re-fetch the new content.
 
 ### Automated Cron Job Workflow
 In staging and production, the ingestion and image harvesting process runs automatically via cron:
 ```bash
 # On host server (datagb.sfei.org):
-cd /var/www/datagb.sfei.org/app && python3 scripts/sheet_to_solr.py && bin/rails gblsci:images:harvest_all RAILS_ENV=production && bin/rails gblsci:images:harvest_retry RAILS_ENV=production >> log/cron_sync.log 2>&1
+cd /var/www/datagb.sfei.org/app && python3 scripts/sheet_to_solr.py && bin/rails sfei:images:harvest_all RAILS_ENV=production >> log/cron_sync.log 2>&1
 
 # In containerized environments:
-cd /rails && python3 scripts/sheet_to_solr.py && bin/rails gblsci:images:harvest_all RAILS_ENV=production && bin/rails gblsci:images:harvest_retry RAILS_ENV=production >> /rails/log/cron_sync.log 2>&1
+cd /rails && python3 scripts/sheet_to_solr.py && bin/rails sfei:images:harvest_all RAILS_ENV=production >> /rails/log/cron_sync.log 2>&1
 ```
-> **Why all three steps?**  
-> We sync the images and we must "harvest" them for sidecar. The retry step is needed in case the image was not yet uploaded when the sheet was processed with it.
 
 ### Production Persistence Requirements
 When deploying containerized instances (Docker / Podman / Kubernetes), ensure persistent volumes are mounted for:
 * `/rails/storage` - Active Storage attachment blobs.
-* `/rails/public/thumbnails` - Raw synced image cache from Google Drive.
+* `/rails/public/images` - Raw synced image cache from Google Drive.
 * `/rails/db` - SQLite database storing sidecars and state transitions.
 
 Ensure directories are owned by the runtime container user (`rails` / UID 1000).
 
 ### Troubleshooting Missing Images
 * **Thumbnail displays placeholder map pin on search results:**
-  - Verify if `sfei_image_name_s` is populated in Solr for the record.
-  - Check if the file exists in `public/thumbnails/<filename>`.
-  - Check file permissions: ensure the web server process has read permissions for `public/thumbnails/`.
+  - Verify if `sfei_image_name_s` / `sfei_image_names_sm` is populated in Solr for the record.
+  - Check if the file exists in `public/images/<filename>`.
+  - Check file permissions: ensure the web server process has read permissions for `public/images/`.
   - Note that Linux filesystems are **case-sensitive**: `My_Image.PNG` does not match `my_image.png`.
-* **Image was uploaded after initial harvest failed / was placeheld:**
-  - If a record was harvested before its image existed on disk, its state was set to `:placeheld`.
-  - `rake gblsci:images:harvest_all` skips records that are already in `:placeheld` or `:succeeded`.
-  - To force re-harvesting of placeheld records once images are downloaded:
-    ```bash
-    bin/rails gblsci:images:harvest_retry
-    ```
-* **Check harvest logs:**
-  - Inspect `log/image_service_<environment>.log` for detailed attachment messages, HTTP statuses, and transition errors.
+* **Image was uploaded after initial harvest:**
+  - Run `bin/rails sfei:images:harvest_all` to attach newly downloaded images from `public/images/`.
