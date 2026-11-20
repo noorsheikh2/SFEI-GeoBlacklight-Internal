@@ -73,7 +73,7 @@ jobs:
         run: |
           docker compose up -d solr
           count=0
-          until curl -sf http://127.0.0.1:8983/solr/blacklight-core/admin/ping > /dev/null; do
+          until curl -sf "http://127.0.0.1:8983/solr/blacklight-core/select?q=*:*&rows=0" > /dev/null; do
             count=$((count + 1))
             if [ $count -gt 30 ]; then
               echo "Solr failed to become ready in time"
