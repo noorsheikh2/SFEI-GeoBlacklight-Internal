@@ -69,6 +69,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
 
+      - name: Start Solr
+        run: |
+          docker compose up -d solr
+          count=0
+          until curl -sf http://127.0.0.1:8983/solr/blacklight-core/admin/ping > /dev/null; do
+            count=$((count + 1))
+            if [ $count -gt 30 ]; then
+              echo "Solr failed to become ready in time"
+              docker compose logs solr
+              exit 1
+            fi
+            echo "Waiting for Solr to be ready ($count/30)..."
+            sleep 2
+          done
+          echo "Solr is ready!"
+
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
