@@ -326,7 +326,11 @@ def convert_row(row, row_number, plan, bbox_columns, image_columns, warnings):
         doc["gbl_resourceClass_sm"] = ["Other"]
         warn(f"'{title}' has no Resource Class; using 'Other'")
 
-    if not doc.get("id"):
+    # Validate ID: if missing or mistakenly populated with a numeric coordinate (e.g. -114.1313), generate slug ID
+    raw_id = doc.get("id")
+    if not raw_id or re.match(r"^-?\d+(?:\.\d+)?$", str(raw_id).strip()):
+        if raw_id:
+            warn(f"'{title}' has numeric coordinate '{raw_id}' in the ID column; generating slug ID instead")
         doc["id"] = ID_PREFIX + slugify(title)
     return doc
 
