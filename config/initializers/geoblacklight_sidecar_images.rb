@@ -50,7 +50,7 @@ Rails.application.config.to_prepare do
       if images.attached? && images.any?
         images.to_a
       elsif image.attached?
-        [image]
+        [ image ]
       else
         []
       end
