@@ -253,7 +253,7 @@ def convert_row(row, row_number, plan, bbox_columns, image_columns, warnings):
                     part = clean(part).strip("\"' ")
                     if part:
                         safe_name = os.path.basename(part)
-                        if safe_name and safe_name not in images:
+                        if safe_name:
                             images.append(safe_name)
 
     if images:
