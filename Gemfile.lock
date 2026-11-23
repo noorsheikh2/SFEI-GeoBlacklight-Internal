@@ -91,7 +91,7 @@ GEM
       rails (>= 6.1, < 9)
       view_component (>= 2.74, < 5)
       zeitwerk
-    bootsnap (1.26.1)
+    bootsnap (1.26.2)
       msgpack (~> 1.5)
     bootstrap (5.3.8)
       popper_js (>= 2.11.8, < 3)
