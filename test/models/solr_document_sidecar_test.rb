@@ -13,7 +13,7 @@ class SolrDocumentSidecarTest < ActiveSupport::TestCase
 
   def teardown
     @sidecar&.destroy
-    FileUtils.rm_f(Rails.root.join("public", "thumbnails", "unit_test_img.png"))
+    FileUtils.rm_f(Rails.root.join("public", "images", "unit_test_img.png"))
   end
 
   test "creates sidecar with expected attributes" do
@@ -36,6 +36,36 @@ class SolrDocumentSidecarTest < ActiveSupport::TestCase
     assert_equal "image/png", @sidecar.image.content_type
   end
 
+  test "supports multiple ActiveStorage images attachment" do
+    assert_not @sidecar.images.attached?
+    assert_empty @sidecar.all_images
+    assert_nil @sidecar.primary_image
+
+    @sidecar.images.attach([
+      { io: StringIO.new("img-1-bytes"), filename: "slide1.png", content_type: "image/png" },
+      { io: StringIO.new("img-2-bytes"), filename: "slide2.png", content_type: "image/png" },
+      { io: StringIO.new("img-3-bytes"), filename: "slide3.png", content_type: "image/png" }
+    ])
+
+    assert @sidecar.images.attached?
+    assert_equal 3, @sidecar.images.count
+    assert_equal 3, @sidecar.all_images.count
+    assert_equal "slide1.png", @sidecar.primary_image.filename.to_s
+    assert_equal [ "slide1.png", "slide2.png", "slide3.png" ], @sidecar.all_images.map { |a| a.filename.to_s }
+  end
+
+  test "primary_image and all_images fallback to single image if only image is attached" do
+    @sidecar.image.attach(
+      io: StringIO.new("legacy-image-bytes"),
+      filename: "legacy.png",
+      content_type: "image/png"
+    )
+
+    assert_equal "legacy.png", @sidecar.primary_image.filename.to_s
+    assert_equal 1, @sidecar.all_images.size
+    assert_equal "legacy.png", @sidecar.all_images.first.filename.to_s
+  end
+
   test "tracks image states with state machine" do
     assert_includes %w[unprocessed initialized], @sidecar.image_state.current_state.to_s
 
@@ -49,8 +79,8 @@ class SolrDocumentSidecarTest < ActiveSupport::TestCase
     assert_equal "succeeded", @sidecar.image_state.current_state
   end
 
-  test "resolves local thumbnail from public/thumbnails when sfei_image_name_s matches" do
-    test_file_path = Rails.root.join("public", "thumbnails", "unit_test_img.png")
+  test "resolves local image from public/images when sfei_image_name_s matches" do
+    test_file_path = Rails.root.join("public", "images", "unit_test_img.png")
     File.write(test_file_path, "PNG_TEST_CONTENT")
 
     doc = SolrDocument.new(
@@ -63,14 +93,14 @@ class SolrDocumentSidecarTest < ActiveSupport::TestCase
 
     assert_not_nil tempfile
     assert_equal "PNG_TEST_CONTENT", tempfile.read
-    assert_equal test_file_path.to_s, service.instance_variable_get(:@metadata)["local_thumbnail_path"]
+    assert_equal test_file_path.to_s, service.instance_variable_get(:@metadata)["local_image_path"]
   ensure
     tempfile&.close
     FileUtils.rm_f(test_file_path) if test_file_path
   end
 
-  test "sanitizes thumbnail filename and prevents path traversal" do
-    # Create a secret test file outside public/thumbnails
+  test "sanitizes image filename and prevents path traversal" do
+    # Create a secret test file outside public/images
     secret_path = Rails.root.join("tmp", "secret_test_file.txt")
     File.write(secret_path, "SECRET_DATA")
 
@@ -82,18 +112,18 @@ class SolrDocumentSidecarTest < ActiveSupport::TestCase
     )
 
     service = GeoblacklightSidecarImages::ImageService.new(doc)
-    # image_tempfile should NOT return the secret file outside public/thumbnails
+    # image_tempfile should NOT return the secret file outside public/images
     file_or_nil = service.send(:image_tempfile, doc.id)
 
-    # It must not read the secret outside public/thumbnails
-    resolved_path = service.instance_variable_get(:@metadata)["local_thumbnail_path"]
+    # It must not read the secret outside public/images
+    resolved_path = service.instance_variable_get(:@metadata)["local_image_path"]
     assert_nil resolved_path
   ensure
     file_or_nil&.close if file_or_nil.respond_to?(:close)
     FileUtils.rm_f(secret_path) if secret_path
   end
 
-  test "falls back to placeholder when local thumbnail does not exist" do
+  test "falls back to placeholder when local image does not exist" do
     doc = SolrDocument.new(
       id: "sfei-test-missing",
       Settings.GBLSI_THUMBNAIL_FIELD => "non_existent_image_12345.png"

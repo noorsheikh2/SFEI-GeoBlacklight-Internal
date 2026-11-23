@@ -132,13 +132,13 @@ flowchart TD
 - [x] Ensure Active Storage is configured in `config/storage.yml` (local disk storage for development and production) with proxy streaming mode in `config/application.rb`.
 
 ### Phase 3: Image Directory & Serving Configuration
-- [x] Create repository directory `public/thumbnails/` with a `.keep` file, adding `public/thumbnails/*` (except `.keep`) to `.gitignore`.
+- [x] Create repository directory `public/images/` with a `.keep` file, adding `public/images/*` (except `.keep`) to `.gitignore`.
 - [x] Update `config/settings.yml` with:
   ```yaml
   GBLSI_THUMBNAIL_FIELD: 'sfei_image_name_s'
   ```
 - [x] Configure `config/initializers/geoblacklight_sidecar_images.rb` to:
-  * Check `public/thumbnails/<filename>` locally for instant, offline attachment.
+  * Check `public/images/<filename>` locally for instant, offline attachment.
   * Bridge `Geoblacklight::SolrDocument.find` to `::SolrDocument.find` for the pre-alpha gem job.
 - [x] Implement custom `SearchResultComponent` (`app/components/search_result_component.rb` & `.html.erb`) subclassing `Geoblacklight::SearchResultComponent` to render 150px × 150px square thumbnails (`object-fit: cover`) with matching placeholder and neutralized padding beside search results.
 - [x] Update `CatalogController` with `config.index.document_component = SearchResultComponent` so Blacklight renders our custom component template instead of the gem's default.

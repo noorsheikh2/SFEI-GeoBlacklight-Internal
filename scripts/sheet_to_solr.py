@@ -45,15 +45,16 @@ SOLR_URL = "http://localhost:8983/solr/blacklight-core"
 GDRIVE_FOLDER_ID = "17D5TLgcpPV83MimUhCafa9roncOSgHsa"
 GDRIVE_FOLDER_URL = f"https://drive.google.com/drive/folders/{GDRIVE_FOLDER_ID}"
 
-# Default output directory for thumbnail images
+# Default output directory for dataset images
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-# If script is in SFEI-GeoBlacklight-Internal/scripts/, look in ../public/thumbnails
-DEFAULT_THUMBNAILS_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "public", "thumbnails"))
-if not os.path.isdir(DEFAULT_THUMBNAILS_DIR):
-    # Fallback to local public/thumbnails if run from repo root
-    alt_dir = os.path.abspath(os.path.join(SCRIPT_DIR, "public", "thumbnails"))
+# If script is in SFEI-GeoBlacklight-Internal/scripts/, look in ../public/images
+DEFAULT_IMAGES_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, "..", "public", "images"))
+if not os.path.isdir(DEFAULT_IMAGES_DIR):
+    # Fallback to local public/images if run from repo root
+    alt_dir = os.path.abspath(os.path.join(SCRIPT_DIR, "public", "images"))
     if os.path.isdir(alt_dir):
-        DEFAULT_THUMBNAILS_DIR = alt_dir
+        DEFAULT_IMAGES_DIR = alt_dir
+DEFAULT_THUMBNAILS_DIR = DEFAULT_IMAGES_DIR
 
 ID_PREFIX = "sfei-"           # generated IDs look like sfei-baylands-habitat-map-2020-v1-3-bhm2020
 INCLUDE_CUSTOM_FIELDS = True  # index SFEI columns that have no field name (Citation, Data Version, ...)
@@ -83,6 +84,10 @@ GEOMETRY_TYPE_TO_RESOURCE_TYPE = {
 WKT_PATTERN = re.compile(
     r"^\s*(ENVELOPE|POLYGON|MULTIPOLYGON|POINT|MULTIPOINT|LINESTRING|MULTILINESTRING)"
     r"\s*\(\s*\(*\s*-?\d", re.IGNORECASE)
+
+# Pattern matching image column headers: "Image Name", "Image Name 2", "Thumbnail Image", etc.
+IMAGE_HEADER_PATTERN = re.compile(
+    r"^(?:image\s*name|thumbnail(?:\s*image)?)(?:\s*(\d+))?$", re.IGNORECASE)
 
 INVISIBLE_CHARS = dict.fromkeys(map(ord, "\u200b\u200c\u200d\u2060\ufeff"), None)
 
@@ -170,13 +175,22 @@ def download_sheet_csv():
 
 
 def plan_columns(labels, fields):
-    """Work out which Solr field each column goes into."""
+    """Work out which Solr field each column goes into, and locate bbox and image columns."""
     plan = {}
     bbox_columns = {}
+    image_col_tuples = []
+
     for index in range(1, max(len(labels), len(fields))):  # skip column A ("Label")
         label = clean(labels[index]) if index < len(labels) else ""
         field = clean(fields[index]) if index < len(fields) else ""
         label_lower = label.lower()
+
+        # Check for image columns (e.g. Image Name, Image Name 2, etc.)
+        img_match = IMAGE_HEADER_PATTERN.match(label)
+        if img_match or field in ("sfei_image_name_s", "sfei_image_names_sm"):
+            order_num = int(img_match.group(1)) if (img_match and img_match.group(1)) else 1
+            image_col_tuples.append((order_num, index))
+            continue
 
         if field:
             plan[index] = field
@@ -190,10 +204,15 @@ def plan_columns(labels, fields):
             bbox_columns["south"] = index
         elif label and INCLUDE_CUSTOM_FIELDS:
             plan[index] = f"sfei_{slugify(label, '_')}_s"
-    return plan, bbox_columns
+
+    # Sort image columns by order number, then column position
+    image_col_tuples.sort(key=lambda x: (x[0], x[1]))
+    image_columns = [idx for _, idx in image_col_tuples]
+
+    return plan, bbox_columns, image_columns
 
 
-def convert_row(row, row_number, plan, bbox_columns, warnings):
+def convert_row(row, row_number, plan, bbox_columns, image_columns, warnings):
     def warn(message):
         warnings.append(f"Row {row_number}: {message}")
 
@@ -223,6 +242,23 @@ def convert_row(row, row_number, plan, bbox_columns, warnings):
                 warn(f"'{raw}' in {field} is not true/false; skipped it")
         else:
             doc[field] = raw
+
+    # Process all image columns in ordered sequence
+    images = []
+    for idx in image_columns:
+        if idx < len(row):
+            raw = clean(row[idx])
+            if raw:
+                for part in re.split(r"[;,]", raw):
+                    part = clean(part).strip("\"' ")
+                    if part:
+                        safe_name = os.path.basename(part)
+                        if safe_name:
+                            images.append(safe_name)
+
+    if images:
+        doc["sfei_image_name_s"] = images[0]
+        doc["sfei_image_names_sm"] = images
 
     title = doc.get("dct_title_s")
     if not title:
@@ -290,7 +326,11 @@ def convert_row(row, row_number, plan, bbox_columns, warnings):
         doc["gbl_resourceClass_sm"] = ["Other"]
         warn(f"'{title}' has no Resource Class; using 'Other'")
 
-    if not doc.get("id"):
+    # Validate ID: if missing or mistakenly populated with a numeric coordinate (e.g. -114.1313), generate slug ID
+    raw_id = doc.get("id")
+    if not raw_id or re.match(r"^-?\d+(?:\.\d+)?$", str(raw_id).strip()):
+        if raw_id:
+            warn(f"'{title}' has numeric coordinate '{raw_id}' in the ID column; generating slug ID instead")
         doc["id"] = ID_PREFIX + slugify(title)
     return doc
 
@@ -307,12 +347,12 @@ def convert_sheet(text):
         raise SystemExit(f"ERROR: row 2 is missing expected field names {sorted(missing)}. "
                          "The sheet layout may have changed. Solr was not changed.")
 
-    plan, bbox_columns = plan_columns(labels, fields)
+    plan, bbox_columns, image_columns = plan_columns(labels, fields)
     warnings, docs, seen_ids = [], [], {}
 
     for offset, row in enumerate(rows[FIRST_DATA_ROW:]):
         row_number = FIRST_DATA_ROW + offset + 1
-        doc = convert_row(row, row_number, plan, bbox_columns, warnings)
+        doc = convert_row(row, row_number, plan, bbox_columns, image_columns, warnings)
         if doc is None:
             continue
         base_id = doc["id"]
@@ -329,19 +369,23 @@ def convert_sheet(text):
 # --------------------------------------------------------------------------
 # Image Sync
 # --------------------------------------------------------------------------
-def sync_thumbnails(docs, output_dir=DEFAULT_THUMBNAILS_DIR, source_dir=None, dry_run=False):
+def sync_images(docs, output_dir=DEFAULT_IMAGES_DIR, source_dir=None, dry_run=False):
     """
-    Ensures images referenced by sfei_image_name_s in docs are present in output_dir.
+    Ensures images referenced by sfei_image_names_sm or sfei_image_name_s in docs are present in output_dir.
     Files that already exist are NEVER re-downloaded (immutability rule).
     """
     os.makedirs(output_dir, exist_ok=True)
 
-    # Collect unique non-empty image filenames
+    # Collect unique non-empty image filenames across all records
     referenced_images = set()
     for doc in docs:
+        img_names = doc.get("sfei_image_names_sm")
+        if isinstance(img_names, list):
+            for name in img_names:
+                if name:
+                    referenced_images.add(os.path.basename(name.strip()))
         img_name = doc.get("sfei_image_name_s")
         if img_name:
-            # Handle if full path or just basename is given
             referenced_images.add(os.path.basename(img_name.strip()))
 
     if not referenced_images:
@@ -413,6 +457,9 @@ def sync_thumbnails(docs, output_dir=DEFAULT_THUMBNAILS_DIR, source_dir=None, dr
             log(f"WARNING: Could not complete Google Drive sync: {e}")
 
 
+sync_thumbnails = sync_images  # Backward compatibility alias
+
+
 # --------------------------------------------------------------------------
 # Solr
 # --------------------------------------------------------------------------
@@ -480,11 +527,15 @@ def main():
     parser = argparse.ArgumentParser(description="Sync the SFEI Google Sheet and images into Solr.")
     parser.add_argument("--dry-run", action="store_true",
                         help="convert and print the records without changing Solr or images")
+    parser.add_argument("--no-json", action="store_true",
+                        help="in dry-run mode, suppress printing the JSON document payload to only show warnings")
     parser.add_argument("--csv-file", help="read this local CSV instead of downloading the sheet")
-    parser.add_argument("--skip-images", action="store_true", help="skip thumbnail image synchronization")
-    parser.add_argument("--images-dir", help="local directory with images to copy from (e.g. mounted drive)")
-    parser.add_argument("--thumbnails-dir", default=DEFAULT_THUMBNAILS_DIR,
-                        help=f"destination directory for thumbnails (default: {DEFAULT_THUMBNAILS_DIR})")
+    parser.add_argument("--skip-images", action="store_true", help="skip dataset image synchronization")
+    parser.add_argument("--images-src-dir", "--images-dir", dest="images_src_dir",
+                        help="local directory with images to copy from (e.g. mounted drive)")
+    parser.add_argument("--images-dest-dir", "--thumbnails-dir", dest="images_dest_dir",
+                        default=DEFAULT_IMAGES_DIR,
+                        help=f"destination directory for images (default: {DEFAULT_IMAGES_DIR})")
     args = parser.parse_args()
 
     if args.csv_file:
@@ -504,17 +555,18 @@ def main():
         log("ERROR: no records found in the sheet, so Solr was not changed.")
         return 1
 
-    # Sync thumbnail images if not skipped
+    # Sync images if not skipped
     if not args.skip_images:
-        sync_thumbnails(
+        sync_images(
             docs=docs,
-            output_dir=args.thumbnails_dir,
-            source_dir=args.images_dir,
+            output_dir=args.images_dest_dir,
+            source_dir=args.images_src_dir,
             dry_run=args.dry_run
         )
 
     if args.dry_run:
-        print(json.dumps(docs, indent=2, ensure_ascii=False))
+        if not args.no_json:
+            print(json.dumps(docs, indent=2, ensure_ascii=False))
         log("Dry run: Solr was not changed.")
         return 0
 
