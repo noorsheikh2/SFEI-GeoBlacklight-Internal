@@ -6,10 +6,14 @@ SOLR_URL := http://127.0.0.1:8983/solr/blacklight-core/select?q=*:*&rows=0
 help:
 	@echo "Available targets:"
 	@echo "  make local-run   - Check/start Solr, prepare DB, sync sheet & images, harvest, and start Rails server"
+	@echo "  make dry-run     - Inspect Google Sheet for data issues/warnings without modifying Solr"
 	@echo "  make solr-start  - Start the Solr container (Docker or Podman)"
 	@echo "  make solr-stop   - Stop the Solr container"
 	@echo "  make sync        - Ingest Google Sheet metadata and harvest images into Active Storage"
 	@echo "  make test        - Run the test suite"
+
+dry-run:
+	python3 scripts/sheet_to_solr.py --dry-run --no-json
 
 solr-start:
 	@if curl -sf "$(SOLR_URL)" > /dev/null; then \

@@ -527,6 +527,8 @@ def main():
     parser = argparse.ArgumentParser(description="Sync the SFEI Google Sheet and images into Solr.")
     parser.add_argument("--dry-run", action="store_true",
                         help="convert and print the records without changing Solr or images")
+    parser.add_argument("--no-json", action="store_true",
+                        help="in dry-run mode, suppress printing the JSON document payload to only show warnings")
     parser.add_argument("--csv-file", help="read this local CSV instead of downloading the sheet")
     parser.add_argument("--skip-images", action="store_true", help="skip dataset image synchronization")
     parser.add_argument("--images-src-dir", "--images-dir", dest="images_src_dir",
@@ -563,7 +565,8 @@ def main():
         )
 
     if args.dry_run:
-        print(json.dumps(docs, indent=2, ensure_ascii=False))
+        if not args.no_json:
+            print(json.dumps(docs, indent=2, ensure_ascii=False))
         log("Dry run: Solr was not changed.")
         return 0
 
